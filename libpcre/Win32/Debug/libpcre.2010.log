@@ -1,0 +1,18 @@
+﻿Build started 26/5/2011 2:09:41 μμ.
+     1>Project "C:\Users\vaderas\Documents\Visual Studio 2010\Projects\iphelper\whatismyip\libpcre\libpcre.2010.vcxproj" on node 3 (build target(s)).
+     1>C:\Windows\Microsoft.NET\Framework\v4.0.30319\Microsoft.Common.Targets(1200,9): warning : The referenced project 'pcre_chartables.c.2010.vcxproj' does not exist.
+     1>InitializeBuildStatus:
+         Creating "Win32\Debug\libpcre.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         All outputs are up-to-date.
+       Lib:
+         All outputs are up-to-date.
+         libpcre.2010.vcxproj -> C:\Users\vaderas\Documents\Visual Studio 2010\Projects\iphelper\whatismyip\libpcre\Win32\Debug\libpcre.lib
+       FinalizeBuildStatus:
+         Deleting file "Win32\Debug\libpcre.unsuccessfulbuild".
+         Touching "Win32\Debug\libpcre.lastbuildstate".
+     1>Done Building Project "C:\Users\vaderas\Documents\Visual Studio 2010\Projects\iphelper\whatismyip\libpcre\libpcre.2010.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.06

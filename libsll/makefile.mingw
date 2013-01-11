@@ -1,0 +1,36 @@
+#
+# Makefile template for GIF combining lib
+# This file is used by the configure program to generate Makefile
+# ma_muquit@fccc.edu
+# oct-11-1997
+#
+
+CC= gcc
+DEFS=  -DWINNT -DHAVE_STRING_H=1
+AR= ar cq
+RANLIB= ranlib
+LIBNAME= sll.lib
+
+INCLUDES=  -I. 
+
+# replace -O with -g in order to debug
+
+DEFINES= $(INCLUDES) $(DEFS) -DWINNT=1
+CFLAGS= -O $(DEFINES)
+
+SRCS = sll.c
+OBJS = sll.o
+
+.c.o:
+	rm -f $@
+	$(CC) $(CFLAGS) -c $*.c
+
+all: $(LIBNAME)
+
+$(LIBNAME): $(OBJS)
+	rm -f $@
+	$(AR) $@ $(OBJS)
+	$(RANLIB) $@
+
+clean:
+	rm -f $(OBJS) $(LIBNAME) core

@@ -1,0 +1,1059 @@
+<html>
+<head>
+    <title>Sll - singly linked list library</title>
+    <link rev=made href="mailto:ma_muquit@fccc.edu">
+<STYLE TYPE="text/css"><!--
+A:link { font-weight:bold; color: #4f65fa; text-decoration: none; }
+A:visited { text-decoration: none; }
+A:hover { color:#9F9900; text-decoration: underline; }
+--></STYLE>
+</head>
+<body bgcolor="#ffffff" link="#0000ff" vlink="#169756"
+    alink="#ff0000" text="#000000">
+
+<table border=0 cellspaing=10 cellpadding=5 align="center">
+<tr align="center">
+<td bgcolor="#eeeeee">
+<font size="+1"><b>sll</b></font>
+<br>
+Singly Linked List Library
+<br>
+<a href="http://www.fccc.edu/users/muquit/">Muhammad A Muquit</a>
+</td>
+</tr>
+</table>
+
+<font size="+1">
+<b>Introduction</b>
+</font>
+<br>
+Sll is a Singly Linked List library. 
+The functions takes pointer to a void data type, so you can make
+a linked list from any kind of data. It's required that you have to write
+your own function to free your data. You will pass a pointer to your function 
+while calling sll free routines.  Please look at the 
+<a href="#Examples">Examples</a> section for code sample.
+I hope You will find the library useful. <b>Note</b>, this library is not
+object oriented, nothing is abstracted, I wrote it this way. I wanted to
+see clearly what's going on. I wrote it because I was tired of many object
+oriented linked list libraries out there.
+<p>
+<table border=0 cellspaing=10 cellpadding=10>
+<tr>
+<td bgcolor="#eeeeee">
+<font color="#000099">
+<code>
+<font size="+1"><b>Download</b>
+<a href="src/sll.tar.gz">sll.tar.gz </a>
+</font>
+</code>
+</font>
+</td>
+</tr>
+</table>
+
+<p>
+<font size="+1">
+<b>sll Data Structure</b>
+</font>
+<pre>
+    typedef struct _Sll
+    {
+        void
+            *data;          /* void pointer for user data */
+
+        struct _Sll
+            *next;          /* pointer to next node */
+    } Sll;    
+</pre>
+<p>
+<font size="+1">
+<b>sll Function reference</b>
+</font>
+<table border=0 cellspaing=10 cellpadding=10>
+<tr>
+<td bgcolor="#eeeeee">
+<font color="#000099">
+<pre>
+    void <a href="#initlist">initlist</a>         (Sll **list)
+    Sll  <a href="#allocateNode">*allocateNode</a>    (void *data)
+    void <a href="#appendNode">appendNode</a>       (Sll **head,Sll **new)
+    void <a href="#appendNodeSorted">appendNodeSorted</a> (Sll **head,Sll **new,int (*compFunc) (void *,void *))
+    void <a href="#insertNode">insertNode</a>       (Sll **head,Sll **new)
+    Bool <a href="#emptyList">emptyList</a>        (Sll *list)
+    void <a href="#delNode">delNode</a>          (Sll **head,Sll *node)
+    void <a href="#freeNode">freeNode</a>         (Sll **list)
+    Sll  <a href="#getNthNode">*getNthNode</a>      (Sll *head,int n)
+    void <a href="#destroyNode">destroyNode</a>      (Sll **head, void (*freeFunc)(void **))
+    void <a href="#destroyNodes">destroyNodes</a>     (Sll **head, void (*freeFunc)(void **))
+    int  <a href="#numNodes">numNodes</a>         (Sll **head)
+</pre>
+</font>
+</td>
+</tr>
+</table>
+<br>    
+<dl>
+<dt>
+<li>
+<code><b>
+<a name="initList">
+void initList (Sll **list)
+</a>
+</b></code>
+<br>
+<dd>Initializes *list by setting the list pointer to NULL.
+
+<p>
+<dt>
+<li>
+<code><b>
+<a name="allocateNode">
+Sll  *allocateNode    (void *data)<br>
+</a>
+</b></code>
+<dd>Allocates space for a new node and initializes the data fields. The user
+is responsible for passing a valid pointer to data. The pointer to data
+can be anything.  If a large amount data needs to be used use a structure.
+<p>
+<dt>
+<li>
+<code><b>
+<a name="appendNode">
+void appendNode       (Sll **head,Sll **new)
+</a>
+</b></code>
+<dd>Appends a node to the end of a list. head list gets modified and new 
+is the node to be appended.
+<p>
+<dt>
+<li>
+<code><b>
+<a name="appendNodeSorted">
+void appendNodeSorted(Sll **head,Sll **new,int (*compFunc)(void *,void *)
+</a>
+</b></code>
+<dd> Appends a node to the end of a list sorted. The data of two lists are
+    passed to the user defined function compFunction for sorting. The function
+    returns an integer 0 or &gt; 0.
+<p>
+<dt>
+<li>
+<code><b>
+<a name="insertNode">
+void insertNode(Sll **head,Sll **new)
+</a>
+</b></code>
+<dd> Inserts a node at the beginning of a list. Insert node new at the beginning
+    of list head. Note, the list head gets modified.
+<p>
+<dt>
+<li>
+<code><b>
+<a name="emptyList">
+Bool emptyList(Sll *list)
+</a>
+</b></code>
+<dd>Checks if a list is empty. returns TRUE if the list is empty, FALSE
+otherwise.
+
+<p>
+<dt>
+<li>
+<code><b>
+<a name="delNode">
+void delNode(Sll **head,Sll *node)
+</a>
+</b></code>
+<dd> Deletes a node from the list. head is the list to modify and node is the 
+    node to remove. Note, the user data is not freed by this routine.
+    See also <a href="#freeNode">freeNode</a>.
+<p>
+<dt>
+<li>
+<code><b>
+<a name="freeNode">
+void freeNode(Sll **list)
+</a>
+</b></code>
+<dd> Frees a node. It does not do free the data. It checks before freeing if
+    the list is NULL or not. If not NULL, it will be freed. Therefore, list
+    must point to a valid location in memory. See also
+    <a href="#destroyNode">destroyNode</a>.
+
+<p>
+<dt>
+<li>
+<code><b>
+<a name="getNthNode">
+Sll *getNthNode(Sll *head,int n)
+</a>
+</b></code>
+<dd> Returns the nth node in a list. Note a node starts at 1. If there is 
+no such node, NULL is returned.
+
+<p>
+<dt>
+<li>
+<code><b>
+<a name="destroyNode">
+void destroyNode(Sll **head,Sll *node,void (*freeFunc)(void **))
+</a>
+</b></code>
+<dd> Frees memory allocated for a node and the data associated with the
+    node. The caller is responsible to write the function to free the memory 
+    for the data. The caller function frees the user data and the
+    function <a href="#delNode">delnode</a> is used to delete the node.
+    <a href="#delNode">delNode</a> calls <a href="#freeNode">freeNode</a>
+    to free the memory associated with the node.
+<p>
+<dt>
+<li>
+<code><b>
+<a name="destroyNodes">
+void destroyNodes(Sll **head,void (*freeFunc)(void **))
+</a>
+</b></code>
+<dd>
+    Frees the entire list and the data. The caller is responsible to write the
+    function to free data and pass it in the function.
+<p>
+<dt>
+<li><code><b>
+<a name="numNodes">
+int numNodes(Sll **head)
+</a>
+</b></code>
+<dd> Returns number of nodes in the list.
+</dl>
+
+<font size="+1"><b>
+<a name="Examples">Examples</a></b></font>
+<li> <a href="#ex1">Example 1</a> - Insert a node at the beginning of the list
+<br>
+<li> <a href="#ex2">Example 2</a> -  Append a node at the end of the list. 
+<br>
+<li> <a href="#ex3">Example 3</a> -  Append a node at the end of the list sorted.
+<br>
+<li> <a href="#ex4">Example 4</a> -  Delete a node.
+
+<P>
+<a name="ex1">
+<b>Example 1:</b></a> Insert a node at the beginning of the list. The code is
+available in examples/insert directory.
+
+<PRE><font color="#ff0000">/*
+**  test inserting a node at the beginning of the list. print the result
+**  and then free the memory. a user defined function is called to free
+**  the data.
+**
+**  Development History:
+**      who                  when           why
+**      ma_muquit@fccc.edu   Aug-09-1998    first cut
+*/</font>
+
+
+<font color="#006500">#include</font> &LT;config.h&GT;
+<font color="#006500">#include</font> &LT;sll.h&GT;
+
+<font color="#006500">typedef</font> <font color="#006500">struct</font> _addr
+{
+    <font color="#006500">char</font>
+        *name,
+        *city,
+        *state;
+} Addr;
+
+<font color="#006500">static</font> <font color="#006500">void</font> freeData(<font color="#006500">void</font> **data);
+
+<font color="#006500">int</font> main (<font color="#006500">int</font> argc,<font color="#006500">char</font> **argv) 
+{
+    Sll
+        *l,
+        *head=NULL,
+        *new=NULL;
+    Addr
+        *addr;
+
+    <font color="#006500">int</font>
+        n=0;
+
+    (<font color="#006500">void</font>) fprintf(stderr,
+"=========================================================================\n");
+    (<font color="#006500">void</font>) fprintf(stderr," Testing Insert a node at the beginning of a list\n");
+    (<font color="#006500">void</font>) fprintf(stderr,
+"=========================================================================\n");
+
+    addr=(Addr *) malloc(<font color="#006500">sizeof</font>(Addr));
+    <font color="#006500">if</font> (addr == NULL)
+    {
+        (<font color="#006500">void</font>) fprintf(stderr," malloc failed\n");
+        exit(-1);
+    }
+
+    <font color="#ff0000">/*
+    ** it will be the last node
+    */</font>
+    addr-&GT;name=strdup("Muhammad A Muquit");
+    addr-&GT;city=strdup("Philadelphia");
+    addr-&GT;state=strdup("PA");
+
+    <font color="#006500">if</font> ((addr-&GT;name == NULL) ||
+        (addr-&GT;city == NULL) ||
+        (addr-&GT;state == NULL))
+    {
+        (<font color="#006500">void</font>) fprintf(stderr,"malloc failed\n");
+        exit(-1);
+    }
+
+    new=<a href="#allocateNode">allocateNode</a>((<font color="#006500">void</font> *) addr);
+    <a href="#insertNode">insertNode</a>(&AMP;head,&AMP;new);
+    (<font color="#006500">void</font>) fprintf(stderr,"Inserting Node: %d\n", ++n);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;name);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;city);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;state);
+
+    <font color="#ff0000">/*
+    ** insert node before the last one
+    */</font>
+    addr=(Addr *) malloc(<font color="#006500">sizeof</font>(Addr));
+    <font color="#006500">if</font> (addr == NULL)
+    {
+        (<font color="#006500">void</font>) fprintf(stderr," malloc failed\n");
+        exit(-1);
+    }
+    addr-&GT;name=strdup("Janet Hunter");
+    addr-&GT;city=strdup("Santa Clara");
+    addr-&GT;state=strdup("CA");
+
+    <font color="#006500">if</font> ((addr-&GT;name == NULL) ||
+        (addr-&GT;city == NULL) ||
+        (addr-&GT;state == NULL))
+    {
+        (<font color="#006500">void</font>) fprintf(stderr,"malloc failed\n");
+        exit(-1);
+    }   
+    new=<a href="#allocateNode">allocateNode</a>((<font color="#006500">void</font> *) addr);
+    <a href="#insertNode">insertNode</a>(&AMP;head,&AMP;new);
+    (<font color="#006500">void</font>) fprintf(stderr,"Inserting Node: %d\n", ++n);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;name);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;city);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;state);
+
+
+    <font color="#ff0000">/*
+    ** insert node before the last one
+    */</font>
+    addr=(Addr *) malloc(<font color="#006500">sizeof</font>(Addr));
+    <font color="#006500">if</font> (addr == NULL)
+    {
+        (<font color="#006500">void</font>) fprintf(stderr," malloc failed\n");
+        exit(-1);
+    }
+    addr-&GT;name=strdup("Babs Jensen");
+    addr-&GT;city=strdup("Cupertino");
+    addr-&GT;state=strdup("CA");
+
+    <font color="#006500">if</font> ((addr-&GT;name == NULL) ||
+        (addr-&GT;city == NULL) ||
+        (addr-&GT;state == NULL))
+    {
+        (<font color="#006500">void</font>) fprintf(stderr,"malloc failed\n");
+        exit(-1);
+    }   
+    new=<a href="#allocateNode">allocateNode</a>((<font color="#006500">void</font> *) addr);
+    <a href="#insertNode">insertNode</a>(&AMP;head,&AMP;new);
+    (<font color="#006500">void</font>) fprintf(stderr,"Inserting Node: %d\n", ++n);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;name);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;city);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;state);
+
+    <font color="#ff0000">/*
+    ** print
+    */</font>
+    (<font color="#006500">void</font>) fprintf(stderr,"\n\nPrinting........\n");
+    n=0;
+    <font color="#006500">for</font> (l=head; l; l=l-&GT;next)
+    {
+        addr=(Addr *) l-&GT;data;
+        (<font color="#006500">void</font>) fprintf(stderr,"Node: %d\n",++n);
+        (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;name);
+        (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;city);
+        (<font color="#006500">void</font>) fprintf(stderr,"  %s\n\n",addr-&GT;state);
+    }
+
+    <font color="#ff0000">/*
+    ** free nodes
+    */</font>
+    <a href="#destroyNodes">destroyNodes</a>(&AMP;head,freeData);
+
+    exit(0);
+}
+
+
+<font color="#ff0000">/*
+** routine to free the user data
+*/</font>
+
+<font color="#006500">static</font> <font color="#006500">void</font> freeData(<font color="#006500">void</font> **data)
+{
+    Addr
+        **addr=(Addr **) data;
+
+    <font color="#006500">static</font> <font color="#006500">int</font>
+        n=0;
+
+    n++;
+    <font color="#006500">if</font> (*addr)
+    {
+        <font color="#006500">if</font> ((*addr)-&GT;name)
+        {
+            (<font color="#006500">void</font>) fprintf(stderr," Freeing: %s\n",(*addr)-&GT;name);
+            (<font color="#006500">void</font>) free((<font color="#006500">char</font> *) (*addr)-&GT;name);
+        }
+        <font color="#006500">if</font> ((*addr)-&GT;city)
+        {
+            (<font color="#006500">void</font>) fprintf(stderr," Freeing: %s\n",(*addr)-&GT;city);
+            (<font color="#006500">void</font>) free ((<font color="#006500">char</font> *) (*addr)-&GT;city);
+        }
+        <font color="#006500">if</font> ((*addr)-&GT;state)
+        {
+            (<font color="#006500">void</font>) fprintf(stderr," Freeing: %s\n",(*addr)-&GT;state);
+            (<font color="#006500">void</font>) free ((<font color="#006500">char</font> *) (*addr)-&GT;state);
+        }
+
+        (<font color="#006500">void</font>) fprintf(stderr,"Freeing the node %d itself\n\n",n);
+        (<font color="#006500">void</font>) free((<font color="#006500">char</font> *) (*addr));
+        (*addr)=NULL;
+    }
+}
+
+</PRE>
+<hr noshade size="1">
+<p>
+
+
+<a name="ex2">
+<b>Example 2:</b></a> Append  a node at the end of the list. The code is
+available in examples/append directory.
+
+<PRE><font color="#ff0000">/*
+**  test appending a node at the end of the list. print the result
+**  and then free the memory. a user defined function is called to free
+**  the data.
+**
+**  Development History:
+**      who                  when           why
+**      ma_muquit@fccc.edu   Aug-09-1998    first cut
+*/</font>
+
+
+<font color="#006500">#include</font> &LT;config.h&GT;
+<font color="#006500">#include</font> &LT;sll.h&GT;
+
+<font color="#006500">typedef</font> <font color="#006500">struct</font> _addr
+{
+    <font color="#006500">char</font>
+        *name,
+        *city,
+        *state;
+} Addr;
+
+<font color="#006500">static</font> <font color="#006500">void</font> freeData(<font color="#006500">void</font> **data);
+
+<font color="#006500">int</font> main (<font color="#006500">int</font> argc,<font color="#006500">char</font> **argv) 
+{
+    Sll
+        *l,
+        *head=NULL,
+        *new=NULL;
+    Addr
+        *addr;
+
+    <font color="#006500">int</font>
+        n=0;
+
+    (<font color="#006500">void</font>) fprintf(stderr,
+"=========================================================================\n");
+    (<font color="#006500">void</font>) fprintf(stderr," Testing Append a node at the beginning of a list\n");
+    (<font color="#006500">void</font>) fprintf(stderr,
+"=========================================================================\n");
+
+    addr=(Addr *) malloc(<font color="#006500">sizeof</font>(Addr));
+    <font color="#006500">if</font> (addr == NULL)
+    {
+        (<font color="#006500">void</font>) fprintf(stderr," malloc failed\n");
+        exit(-1);
+    }
+
+    (<font color="#006500">void</font>) fprintf(stderr,"\n---------------[ appending ]----------\n");
+    <font color="#ff0000">/*
+    ** it will be the last node
+    */</font>
+    addr-&GT;name=strdup("Muhammad A Muquit");
+    addr-&GT;city=strdup("Philadelphia");
+    addr-&GT;state=strdup("PA");
+
+    <font color="#006500">if</font> ((addr-&GT;name == NULL) ||
+        (addr-&GT;city == NULL) ||
+        (addr-&GT;state == NULL))
+    {
+        (<font color="#006500">void</font>) fprintf(stderr,"malloc failed\n");
+        exit(-1);
+    }
+
+    new=<a href="#allocateNode">allocateNode</a>((<font color="#006500">void</font> *) addr);
+    <a href="#appendNode">appendNode</a>(&AMP;head,&AMP;new);
+    (<font color="#006500">void</font>) fprintf(stderr,"Node: %d\n", ++n);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;name);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;city);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;state);
+
+    <font color="#ff0000">/*
+    ** append node after the last one
+    */</font>
+    addr=(Addr *) malloc(<font color="#006500">sizeof</font>(Addr));
+    <font color="#006500">if</font> (addr == NULL)
+    {
+        (<font color="#006500">void</font>) fprintf(stderr," malloc failed\n");
+        exit(-1);
+    }
+    addr-&GT;name=strdup("Janet Hunter");
+    addr-&GT;city=strdup("Santa Clara");
+    addr-&GT;state=strdup("CA");
+
+    <font color="#006500">if</font> ((addr-&GT;name == NULL) ||
+        (addr-&GT;city == NULL) ||
+        (addr-&GT;state == NULL))
+    {
+        (<font color="#006500">void</font>) fprintf(stderr,"malloc failed\n");
+        exit(-1);
+    }   
+    new=<a href="#allocateNode">allocateNode</a>((<font color="#006500">void</font> *) addr);
+    <a href="#appendNode">appendNode</a>(&AMP;head,&AMP;new);
+    (<font color="#006500">void</font>) fprintf(stderr,"Appending Node: %d\n", ++n);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;name);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;city);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;state);
+
+
+    <font color="#ff0000">/*
+    ** append node after the last one
+    */</font>
+    addr=(Addr *) malloc(<font color="#006500">sizeof</font>(Addr));
+    <font color="#006500">if</font> (addr == NULL)
+    {
+        (<font color="#006500">void</font>) fprintf(stderr," malloc failed\n");
+        exit(-1);
+    }
+    addr-&GT;name=strdup("Babs Jensen");
+    addr-&GT;city=strdup("Cupertino");
+    addr-&GT;state=strdup("CA");
+
+    <font color="#006500">if</font> ((addr-&GT;name == NULL) ||
+        (addr-&GT;city == NULL) ||
+        (addr-&GT;state == NULL))
+    {
+        (<font color="#006500">void</font>) fprintf(stderr,"malloc failed\n");
+        exit(-1);
+    }   
+    new=<a href="#allocateNode">allocateNode</a>((<font color="#006500">void</font> *) addr);
+    <a href="#appendNode">appendNode</a>(&AMP;head,&AMP;new);
+    (<font color="#006500">void</font>) fprintf(stderr,"Appending Node: %d\n", ++n);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;name);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;city);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;state);
+
+    <font color="#ff0000">/*
+    ** print
+    */</font>
+    (<font color="#006500">void</font>) fprintf(stderr,"\n---------------[ printing ]----------\n");
+    n=0;
+    <font color="#006500">for</font> (l=head; l; l=l-&GT;next)
+    {
+        addr=(Addr *) l-&GT;data;
+        (<font color="#006500">void</font>) fprintf(stderr,"Node: %d\n",++n);
+        (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;name);
+        (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;city);
+        (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;state);
+    }
+
+    <font color="#ff0000">/*
+    ** free nodes
+    */</font>
+    (<font color="#006500">void</font>) fprintf(stderr,"\n---------------[ freeing ]----------\n");
+    <a href="#destroyNodes">destroyNodes</a>(&AMP;head,freeData);
+
+    exit(0);
+}
+
+
+<font color="#ff0000">/*
+** routine to free the user data
+*/</font>
+
+<font color="#006500">static</font> <font color="#006500">void</font> freeData(<font color="#006500">void</font> **data)
+{
+    Addr
+        **addr=(Addr **) data;
+
+    <font color="#006500">static</font> <font color="#006500">int</font>
+        n=0;
+
+    n++;
+    <font color="#006500">if</font> (*addr)
+    {
+        <font color="#006500">if</font> ((*addr)-&GT;name)
+        {
+            (<font color="#006500">void</font>) fprintf(stderr," Freeing: %s\n",(*addr)-&GT;name);
+            (<font color="#006500">void</font>) free((<font color="#006500">char</font> *) (*addr)-&GT;name);
+        }
+        <font color="#006500">if</font> ((*addr)-&GT;city)
+        {
+            (<font color="#006500">void</font>) fprintf(stderr," Freeing: %s\n",(*addr)-&GT;city);
+            (<font color="#006500">void</font>) free ((<font color="#006500">char</font> *) (*addr)-&GT;city);
+        }
+        <font color="#006500">if</font> ((*addr)-&GT;state)
+        {
+            (<font color="#006500">void</font>) fprintf(stderr," Freeing: %s\n",(*addr)-&GT;state);
+            (<font color="#006500">void</font>) free ((<font color="#006500">char</font> *) (*addr)-&GT;state);
+        }
+
+        (<font color="#006500">void</font>) fprintf(stderr,"Freeing the node %d itself\n\n",n);
+        (<font color="#006500">void</font>) free((<font color="#006500">char</font> *) (*addr));
+        (*addr)=NULL;
+    }
+}
+</PRE>
+
+<hr noshade>
+<a name="ex3">
+<b>Example 3:</b></a> Appends a node to the end of a list sorted.
+
+<PRE><font color="#ff0000">/*
+**  Appends a node to the end of a list sorted. The data of two lists are
+**  passed to the user defined function compFunction for sorting. 
+**
+**  Development History:
+**      who                  when           why
+**      ma_muquit@fccc.edu   Aug-09-1998    first cut
+*/</font>
+
+
+<font color="#006500">#include</font> &LT;config.h&GT;
+<font color="#006500">#include</font> &LT;sll.h&GT;
+
+<font color="#006500">typedef</font> <font color="#006500">struct</font> _addr
+{
+    <font color="#006500">char</font>
+        *name,
+        *city,
+        *state;
+} Addr;
+
+<font color="#006500">static</font> <font color="#006500">void</font> freeData(<font color="#006500">void</font> **data);
+<font color="#006500">static</font> <font color="#006500">int</font> compFunc(<font color="#006500">void</font> *a1,<font color="#006500">void</font> *a2);
+
+<font color="#006500">int</font> main (<font color="#006500">int</font> argc,<font color="#006500">char</font> **argv) 
+{
+    Sll
+        *l,
+        *head=NULL,
+        *new=NULL;
+    Addr
+        *addr;
+
+    <font color="#006500">int</font>
+        n=0;
+
+    (<font color="#006500">void</font>) fprintf(stderr,
+"=========================================================================\n");
+    (<font color="#006500">void</font>) fprintf(stderr," Testing Append a node at the beginning of a list\n");
+    (<font color="#006500">void</font>) fprintf(stderr,
+"=========================================================================\n");
+
+    addr=(Addr *) malloc(<font color="#006500">sizeof</font>(Addr));
+    <font color="#006500">if</font> (addr == NULL)
+    {
+        (<font color="#006500">void</font>) fprintf(stderr," malloc failed\n");
+        exit(-1);
+    }
+
+    (<font color="#006500">void</font>) fprintf(stderr,"\n---------------[ appending ]----------\n");
+    <font color="#ff0000">/*
+    ** it will be the last node
+    */</font>
+    addr-&GT;name=strdup("Cindy Muquit");
+    addr-&GT;city=strdup("Philadelphia");
+    addr-&GT;state=strdup("PA");
+
+    <font color="#006500">if</font> ((addr-&GT;name == NULL) ||
+        (addr-&GT;city == NULL) ||
+        (addr-&GT;state == NULL))
+    {
+        (<font color="#006500">void</font>) fprintf(stderr,"malloc failed\n");
+        exit(-1);
+    }
+
+    new=<a href="#allocateNode">allocateNode</a>((<font color="#006500">void</font> *) addr);
+    <a href="#appendNodeSorted">appendNodeSorted</a>(&AMP;head,&AMP;new,compFunc);
+    (<font color="#006500">void</font>) fprintf(stderr,"Appending Node: %d\n", ++n);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;name);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;city);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;state);
+
+    <font color="#ff0000">/*
+    ** append node before the last one
+    */</font>
+    addr=(Addr *) malloc(<font color="#006500">sizeof</font>(Addr));
+    <font color="#006500">if</font> (addr == NULL)
+    {
+        (<font color="#006500">void</font>) fprintf(stderr," malloc failed\n");
+        exit(-1);
+    }
+    addr-&GT;name=strdup("Janet Hunter");
+    addr-&GT;city=strdup("Santa Clara");
+    addr-&GT;state=strdup("CA");
+
+    <font color="#006500">if</font> ((addr-&GT;name == NULL) ||
+        (addr-&GT;city == NULL) ||
+        (addr-&GT;state == NULL))
+    {
+        (<font color="#006500">void</font>) fprintf(stderr,"malloc failed\n");
+        exit(-1);
+    }   
+    new=<a href="#allocateNode">allocateNode</a>((<font color="#006500">void</font> *) addr);
+    <a href="#appendNodeSorted">appendNodeSorted</a>(&AMP;head,&AMP;new,compFunc);
+    (<font color="#006500">void</font>) fprintf(stderr,"Appending Node: %d\n", ++n);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;name);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;city);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;state);
+
+
+    <font color="#ff0000">/*
+    ** append node before the last one
+    */</font>
+    addr=(Addr *) malloc(<font color="#006500">sizeof</font>(Addr));
+    <font color="#006500">if</font> (addr == NULL)
+    {
+        (<font color="#006500">void</font>) fprintf(stderr," malloc failed\n");
+        exit(-1);
+    }
+    addr-&GT;name=strdup("Babs Jensen");
+    addr-&GT;city=strdup("Cupertino");
+    addr-&GT;state=strdup("CA");
+
+    <font color="#006500">if</font> ((addr-&GT;name == NULL) ||
+        (addr-&GT;city == NULL) ||
+        (addr-&GT;state == NULL))
+    {
+        (<font color="#006500">void</font>) fprintf(stderr,"malloc failed\n");
+        exit(-1);
+    }   
+    new=<a href="#allocateNode">allocateNode</a>((<font color="#006500">void</font> *) addr);
+    <a href="#appendNodeSorted">appendNodeSorted</a>(&AMP;head,&AMP;new,compFunc);
+    (<font color="#006500">void</font>) fprintf(stderr,"Appending Node: %d\n", ++n);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;name);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;city);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;state);
+
+    <font color="#ff0000">/*
+    ** print
+    */</font>
+    (<font color="#006500">void</font>) fprintf(stderr,"\n---------------[ printing ]----------\n");
+    n=0;
+    <font color="#006500">for</font> (l=head; l; l=l-&GT;next)
+    {
+        addr=(Addr *) l-&GT;data;
+        (<font color="#006500">void</font>) fprintf(stderr,"Node: %d\n",++n);
+        (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;name);
+        (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;city);
+        (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;state);
+    }
+
+    <font color="#ff0000">/*
+    ** free nodes
+    */</font>
+    (<font color="#006500">void</font>) fprintf(stderr,"\n---------------[ freeing ]----------\n");
+    <a href="#destroyNodes">destroyNodes</a>(&AMP;head,freeData);
+
+    exit(0);
+}
+
+
+<font color="#ff0000">/*
+** routine to free the user data
+*/</font>
+
+<font color="#006500">static</font> <font color="#006500">void</font> freeData(<font color="#006500">void</font> **data)
+{
+    Addr
+        **addr=(Addr **) data;
+
+    <font color="#006500">static</font> <font color="#006500">int</font>
+        n=0;
+
+    n++;
+    <font color="#006500">if</font> (*addr)
+    {
+        <font color="#006500">if</font> ((*addr)-&GT;name)
+        {
+            (<font color="#006500">void</font>) fprintf(stderr," Freeing: %s\n",(*addr)-&GT;name);
+            (<font color="#006500">void</font>) free((<font color="#006500">char</font> *) (*addr)-&GT;name);
+        }
+        <font color="#006500">if</font> ((*addr)-&GT;city)
+        {
+            (<font color="#006500">void</font>) fprintf(stderr," Freeing: %s\n",(*addr)-&GT;city);
+            (<font color="#006500">void</font>) free ((<font color="#006500">char</font> *) (*addr)-&GT;city);
+        }
+        <font color="#006500">if</font> ((*addr)-&GT;state)
+        {
+            (<font color="#006500">void</font>) fprintf(stderr," Freeing: %s\n",(*addr)-&GT;state);
+            (<font color="#006500">void</font>) free ((<font color="#006500">char</font> *) (*addr)-&GT;state);
+        }
+
+        (<font color="#006500">void</font>) fprintf(stderr,"Freeing the node %d itself\n\n",n);
+        (<font color="#006500">void</font>) free((<font color="#006500">char</font> *) (*addr));
+        (*addr)=NULL;
+    }
+}
+
+
+<font color="#006500">static</font> <font color="#006500">int</font> compFunc(<font color="#006500">void</font> *a1,<font color="#006500">void</font> *a2)
+{
+    Addr
+        *addr1=(Addr *) a1,
+        *addr2=(Addr *) a2;
+
+<font color="#ff0000">/*
+    (void) fprintf(stderr,"name1=%s\n",addr1-&GT;name);
+    (void) fprintf(stderr,"name2=%s\n",addr2-&GT;name);
+*/</font>
+    <font color="#006500">return</font> (strcasecmp(addr1-&GT;name,addr2-&GT;name));
+}
+
+</PRE>
+
+<hr noshade>
+<a name="ex4">
+<b>Example 4:</b></a> Delete a node.
+
+<PRE><font color="#ff0000">/*
+**  first append a node at the end of a list. then dele a node and free the
+**  memory associated with data.
+**
+**  Development History:
+**      who                  when           why
+**      ma_muquit@fccc.edu   Aug-09-1998    first cut
+*/</font>
+
+
+<font color="#006500">#include</font> &LT;config.h&GT;
+<font color="#006500">#include</font> &LT;sll.h&GT;
+
+<font color="#006500">typedef</font> <font color="#006500">struct</font> _addr
+{
+    <font color="#006500">char</font>
+        *name,
+        *city,
+        *state;
+} Addr;
+
+<font color="#006500">static</font> <font color="#006500">void</font> freeData(<font color="#006500">void</font> **data);
+
+<font color="#006500">int</font> main (<font color="#006500">int</font> argc,<font color="#006500">char</font> **argv) 
+{
+    Sll
+        *node,
+        *l,
+        *head=NULL,
+        *new=NULL;
+    Addr
+        *addr;
+
+    <font color="#006500">int</font>
+        n=0;
+
+    (<font color="#006500">void</font>) fprintf(stderr,
+"=========================================================================\n");
+    (<font color="#006500">void</font>) fprintf(stderr," Append a node at the beginning of a list\n");
+    (<font color="#006500">void</font>) fprintf(stderr,
+"=========================================================================\n");
+
+    addr=(Addr *) malloc(<font color="#006500">sizeof</font>(Addr));
+    <font color="#006500">if</font> (addr == NULL)
+    {
+        (<font color="#006500">void</font>) fprintf(stderr," malloc failed\n");
+        exit(-1);
+    }
+
+    (<font color="#006500">void</font>) fprintf(stderr,"\n---------------[ appending ]----------\n");
+    <font color="#ff0000">/*
+    ** it will be the last node
+    */</font>
+    addr-&GT;name=strdup("Muhammad A Muquit");
+    addr-&GT;city=strdup("Philadelphia");
+    addr-&GT;state=strdup("PA");
+
+    <font color="#006500">if</font> ((addr-&GT;name == NULL) ||
+        (addr-&GT;city == NULL) ||
+        (addr-&GT;state == NULL))
+    {
+        (<font color="#006500">void</font>) fprintf(stderr,"malloc failed\n");
+        exit(-1);
+    }
+
+    new=<a href="#allocateNode">allocateNode</a>((<font color="#006500">void</font> *) addr);
+    <a href="#appendNode">appendNode</a>(&AMP;head,&AMP;new);
+    (<font color="#006500">void</font>) fprintf(stderr,"Appending Node: %d\n", ++n);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;name);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;city);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;state);
+
+    <font color="#ff0000">/*
+    ** append node before the last one
+    */</font>
+    addr=(Addr *) malloc(<font color="#006500">sizeof</font>(Addr));
+    <font color="#006500">if</font> (addr == NULL)
+    {
+        (<font color="#006500">void</font>) fprintf(stderr," malloc failed\n");
+        exit(-1);
+    }
+    addr-&GT;name=strdup("Janet Hunter");
+    addr-&GT;city=strdup("Santa Clara");
+    addr-&GT;state=strdup("CA");
+
+    <font color="#006500">if</font> ((addr-&GT;name == NULL) ||
+        (addr-&GT;city == NULL) ||
+        (addr-&GT;state == NULL))
+    {
+        (<font color="#006500">void</font>) fprintf(stderr,"malloc failed\n");
+        exit(-1);
+    }   
+    new=<a href="#allocateNode">allocateNode</a>((<font color="#006500">void</font> *) addr);
+    <a href="#appendNode">appendNode</a>(&AMP;head,&AMP;new);
+    (<font color="#006500">void</font>) fprintf(stderr,"Appending Node: %d\n", ++n);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;name);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;city);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;state);
+
+
+    <font color="#ff0000">/*
+    ** append node before the last one
+    */</font>
+    addr=(Addr *) malloc(<font color="#006500">sizeof</font>(Addr));
+    <font color="#006500">if</font> (addr == NULL)
+    {
+        (<font color="#006500">void</font>) fprintf(stderr," malloc failed\n");
+        exit(-1);
+    }
+    addr-&GT;name=strdup("Babs Jensen");
+    addr-&GT;city=strdup("Cupertino");
+    addr-&GT;state=strdup("CA");
+
+    <font color="#006500">if</font> ((addr-&GT;name == NULL) ||
+        (addr-&GT;city == NULL) ||
+        (addr-&GT;state == NULL))
+    {
+        (<font color="#006500">void</font>) fprintf(stderr,"malloc failed\n");
+        exit(-1);
+    }   
+    new=<a href="#allocateNode">allocateNode</a>((<font color="#006500">void</font> *) addr);
+    <a href="#appendNode">appendNode</a>(&AMP;head,&AMP;new);
+    (<font color="#006500">void</font>) fprintf(stderr,"Appending Node: %d\n", ++n);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;name);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;city);
+    (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;state);
+
+    <font color="#ff0000">/*
+    ** print
+    */</font>
+    (<font color="#006500">void</font>) fprintf(stderr,"\n---------------[ printing ]----------\n");
+    n=0;
+    <font color="#006500">for</font> (l=head; l; l=l-&GT;next)
+    {
+        addr=(Addr *) l-&GT;data;
+        (<font color="#006500">void</font>) fprintf(stderr,"Node: %d\n",++n);
+        (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;name);
+        (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;city);
+        (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;state);
+    }
+
+    (<font color="#006500">void</font>) fprintf(stderr,"\n-----------[ delete Node 2 ]---------\n");
+    node=<a href="#getNthNode">getNthNode</a>(head,2);
+    <font color="#006500">if</font> (node != NULL)
+        <a href="#destroyNode">destroyNode</a>(&AMP;head,node,freeData);
+    <font color="#006500">else</font>
+        (<font color="#006500">void</font>) fprintf(stderr,"No node found at position 2\n");
+    (<font color="#006500">void</font>) fprintf(stderr,"\n-----------[ printing all the nodes again ]--------\n");
+    n=0;
+    <font color="#006500">for</font> (l=head; l; l=l-&GT;next)
+    {
+        addr=(Addr *) l-&GT;data;
+        (<font color="#006500">void</font>) fprintf(stderr,"Node: %d\n",++n);
+        (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;name);
+        (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;city);
+        (<font color="#006500">void</font>) fprintf(stderr,"  %s\n",addr-&GT;state);
+    }
+
+
+    <font color="#ff0000">/*
+    ** free nodes
+    */</font>
+    (<font color="#006500">void</font>) fprintf(stderr,"\n---------------[ freeing ]----------\n");
+    <a href="#destroyNodes">destroyNodes</a>(&AMP;head,freeData);
+
+    exit(0);
+}
+
+
+<font color="#ff0000">/*
+** routine to free the user data
+*/</font>
+
+<font color="#006500">static</font> <font color="#006500">void</font> freeData(<font color="#006500">void</font> **data)
+{
+    Addr
+        **addr=(Addr **) data;
+
+    <font color="#006500">if</font> (*addr)
+    {
+        <font color="#006500">if</font> ((*addr)-&GT;name)
+        {
+            (<font color="#006500">void</font>) fprintf(stderr," Freeing: %s\n",(*addr)-&GT;name);
+            (<font color="#006500">void</font>) free((<font color="#006500">char</font> *) (*addr)-&GT;name);
+        }
+        <font color="#006500">if</font> ((*addr)-&GT;city)
+        {
+            (<font color="#006500">void</font>) fprintf(stderr," Freeing: %s\n",(*addr)-&GT;city);
+            (<font color="#006500">void</font>) free ((<font color="#006500">char</font> *) (*addr)-&GT;city);
+        }
+        <font color="#006500">if</font> ((*addr)-&GT;state)
+        {
+            (<font color="#006500">void</font>) fprintf(stderr," Freeing: %s\n",(*addr)-&GT;state);
+            (<font color="#006500">void</font>) free ((<font color="#006500">char</font> *) (*addr)-&GT;state);
+        }
+
+        (<font color="#006500">void</font>) fprintf(stderr,"Freeing the node itself\n\n");
+        (<font color="#006500">void</font>) free((<font color="#006500">char</font> *) (*addr));
+        (*addr)=NULL;
+    }
+}
+
+</PRE>
+
+<font size="+1"><b>Copyright</b></font> -
+GNU GPL
+<p>
+<font size="+1"><b>ChangeLog</b></font>
+<br>
+<li> First cut, Aug-09-1999
+<hr size=1 noshade>
+<center>
+| <a href="http://www.fccc.edu/users/muquit/">Home</a> | <a
+href="http://www.fccc.edu/users/muquit/sitemap/sitemap.html">Sitemap</a> |
+
+</center>
+
+</body>
+</html>
