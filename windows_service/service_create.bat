@@ -1,0 +1,1 @@
+sc create whatismyip3 binpath= C:\Users\vaderas\workspace\whatismyp\windows_service\Win32\Debug\whatismyip_service.exe

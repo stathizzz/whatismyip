@@ -77,8 +77,8 @@ typedef struct _Sll
 ** function prototypes
 */
 Sll         *allocateNode       (void *data);
-void        appendNodeSorted    (Sll **head,Sll **new,Ifunc compFunc);
-void        appendNode          (Sll **list,Sll **new);
+void        appendNodeSorted    (Sll **head,Sll **new1,Ifunc compFunc);
+void        appendNode          (Sll **list,Sll **new1);
 void        delNode             (Sll **list,Sll *node);
 /*
 void        destroyNode         (Sll **list,Sll *node,
@@ -94,7 +94,7 @@ Bool        emptyList           (Sll *list);
 void        freeNode            (Sll **list);
 Sll         *getNthNode         (Sll *list,int n);
 void        initList            (Sll **list);
-void        insertNode          (Sll **list,Sll **new);
+void        insertNode          (Sll **list,Sll **new1);
 int         numNodes            (Sll **head);
 
 #endif  /* SLL_H */

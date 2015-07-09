@@ -111,10 +111,22 @@ WHATISMYIP_DECLARE(int) easy_extract_regex_from_sll(const char *pattern, char **
 WHATISMYIP_DECLARE(int) get_ip_from_url(const char* url, char** ip);
 
 /*
+* Gets page data from address from the specified <url> website echoing it back
+* This method is equivalent to easy_get_data_from_url. Only difference is the way the data is fetched. 
+*/
+WHATISMYIP_DECLARE(int) get_data_from_url(const char *url, const char * pattern, char **res);
+
+/*
 * Gets your public <ip> address from the specified <url> website echoing it back 
 * This method is equivalent to get_ip_from_url. Only difference is the way the ip is fetched. 
 */
 WHATISMYIP_DECLARE(int) easy_get_ip_from_url(const char* url, char** ip);
+
+/*
+* Gets page data from address from the specified <url> website echoing it back
+* This method is equivalent to get_data_from_url. It is a simple parser of a webpage url based on a regex.
+*/
+WHATISMYIP_DECLARE(int) easy_get_data_from_url(const char *url, const char * pattern, char **res);
 
 /*
 * Gets your public ip address  in a file with name <filename> from the specified <url> website echoing it back

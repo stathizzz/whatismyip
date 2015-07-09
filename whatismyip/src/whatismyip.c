@@ -15,7 +15,7 @@
 #define MIN_REQUIRED_IP_LENGTH 16
 #define MIN_REQUIRED_REGEX_RESULT_LENGTH 100
 
-static Sll *head;
+static Sll head;
 static locale_struct lang_globals;
 static size_t realsize;
 
@@ -117,82 +117,116 @@ WHATISMYIP_DECLARE(int) get_httpdata_in_file(const char* url, const char* filena
 
   return status;
 }
-
+static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream)
+{
+	int written = fwrite(ptr, size, nmemb, (FILE *)stream);
+	return written;
+}
 WHATISMYIP_DECLARE(int) get_ip_from_url_in_file(const char* url, const char* filename)
 {
-  CURL *curl;
-  CURLcode res;
-  curl_status_t status = CURL_STATUS_SUCCESS;
-  char* out;
-  Sll* list;
-  FILE *f;
+	CURL *curl;
+	CURLcode res;
+#ifdef WIN32
+	WSADATA wsaData;
+	int initwsa;
 
-  ftp_file_t file = malloc(sizeof(struct ftp_file ));
-  file->filename = filename; /* name to store the file as if succesful */
-  file->stream = NULL;
-
-  out = malloc(MIN_REQUIRED_REGEX_RESULT_LENGTH);
-  /* initialize the linked list */
-  initList(&head);
-
-  curl_global_init(CURL_GLOBAL_DEFAULT);
-
-  curl = curl_easy_init();
-  if(curl)
-  {
-    /*
-     * You better replace the URL with one that works!
-     */
-    curl_easy_setopt(curl, CURLOPT_URL, url);
-    /* Define our callback to get called when there's data to be written */
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_memory_callback);
-    /* Set a pointer to our struct to pass to the callback */
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, file);
-
-#if DEBUG
-    /* Switch on full protocol/debug output */
-    curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-#endif
-
-    res = curl_easy_perform(curl);
-	
-	easy_extract_regex_from_sll("(([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])\\.){3}([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])", &out);
-	
-	f = fopen(filename, "wb+");
-	if(!f)
-	{
-		fprintf(stdout, " failure, can't open file to write: %d\n", GetLastError());
-		return -1; 
+	if ((initwsa = WSAStartup(MAKEWORD(2, 0), &wsaData)) != 0) {
+		printf("WSAStartup failed: %d\n", initwsa);
+		return 1;
 	}
-	fflush(f);
-
-	
-    fwrite(out, sizeof(char), strlen(out), f);
-
-	fclose(f);
-
-    /* always cleanup */
-    curl_easy_cleanup(curl);
-
-    if(CURLE_OK != res) 
-	{
-#if DEBUG
-      /* we failed */
-		fprintf(stderr, "error output #: %d\n", GetLastError());
 #endif
-		status = CURL_STATUS_FAILURE;
-    }
-  }
+	curl = curl_easy_init();
+	if (curl) {
+		curl_easy_setopt(curl, CURLOPT_URL, url);
+		/* example.com is redirected, so we tell libcurl to follow redirection */
+		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 
-  if(file->stream)
-    fclose(file->stream); /* close the local file */
+		/* Perform the request, res will get the return code */
+		res = curl_easy_perform(curl);
+		/* Check for errors */
+		if (res != CURLE_OK)
+			fprintf(stderr, "curl_easy_perform() failed: %s\n",
+			curl_easy_strerror(res));
 
-  curl_global_cleanup();
+		/* always cleanup */
+		curl_easy_cleanup(curl);
+	}
+	return 0;
+	{
+		CURL *curl;
+		CURLcode res;
+		curl_status_t status = CURL_STATUS_SUCCESS;
+		char* out;
+		Sll* list;
+		FILE *f;
 
-  if(head)
-	free(head);
+		ftp_file_t file = malloc(sizeof(struct ftp_file));
+		file->filename = filename; /* name to store the file as if succesful */
+		file->stream = NULL;
 
-  return status;
+		out = malloc(MIN_REQUIRED_REGEX_RESULT_LENGTH);
+		/* initialize the linked list */
+		initList(&head);
+
+		curl_global_init(CURL_GLOBAL_DEFAULT);
+
+		curl = curl_easy_init();
+		if (curl)
+		{
+			/*
+			 * You better replace the URL with one that works!
+			 */
+			curl_easy_setopt(curl, CURLOPT_URL, url);
+			/* Define our callback to get called when there's data to be written */
+			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_memory_callback);
+			/* Set a pointer to our struct to pass to the callback */
+			curl_easy_setopt(curl, CURLOPT_WRITEDATA, file);
+
+#if DEBUG
+			/* Switch on full protocol/debug output */
+			curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+#endif
+
+			res = curl_easy_perform(curl);
+
+			easy_extract_regex_from_sll("(([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])\\.){3}([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])", &out);
+
+			f = fopen(filename, "wb+");
+			if (!f)
+			{
+				fprintf(stdout, " failure, can't open file to write: %d\n", GetLastError());
+				return -1;
+			}
+			fflush(f);
+
+
+			fwrite(out, sizeof(char), strlen(out), f);
+
+			fclose(f);
+
+			/* always cleanup */
+			curl_easy_cleanup(curl);
+
+			if (CURLE_OK != res)
+			{
+#if DEBUG
+				/* we failed */
+				fprintf(stderr, "error output #: %d\n", GetLastError());
+#endif
+				status = CURL_STATUS_FAILURE;
+			}
+		}
+
+		if (file->stream)
+			fclose(file->stream); /* close the local file */
+
+		curl_global_cleanup();
+
+		//if(head)
+		//free(head);
+
+		return status;
+	}
 }
 
 WHATISMYIP_DECLARE(int) curl_memwrite(Sll *data, const char *url)
@@ -205,7 +239,7 @@ WHATISMYIP_DECLARE(int) curl_memwrite(Sll *data, const char *url)
   chunk = malloc(1);  /* will be grown as needed by the realloc above */
  
   /* initialize the linked list */
-  head = NULL;
+  //head = NULL;
   initList(&head);
 
   curl_global_init(CURL_GLOBAL_ALL);
@@ -268,7 +302,7 @@ WHATISMYIP_DECLARE(int) easy_curl_memwrite(const char *url)
   chunk = malloc(1);  /* will be grown as needed by the realloc above */
  
   /* initialize the linked list */
-  head = NULL;
+  //head = NULL;
   initList(&head);
 
   curl_global_init(CURL_GLOBAL_ALL);
@@ -357,7 +391,7 @@ WHATISMYIP_DECLARE(int) easy_extract_regex_from_sll(const char *pattern, char **
 		return CURL_STATUS_FAILURE;
 	}
 	
-	answer = head;
+	answer = &head;
 
 	while(answer)
 	{
@@ -573,7 +607,7 @@ WHATISMYIP_DECLARE(int) easy_get_ip_from_url(const char *url, char **ip)
 		
 	easy_curl_memwrite(url);
 
-	if (!head)
+	//if (!head)
 	{
 #if DEBUG
 		fprintf(stdout, "error fetching data! try calling curl_memwrite first!\n");
@@ -585,8 +619,62 @@ WHATISMYIP_DECLARE(int) easy_get_ip_from_url(const char *url, char **ip)
 	
 	*ip = &out;
 
-	if(head)
-		free(head);
+	//if(head)
+	//	free(head);
+
+	return status;
+}
+
+WHATISMYIP_DECLARE(int) get_data_from_url(const char *url, const char *pattern, char **data)
+{
+	int status;
+	Sll* mysll = malloc(1000*sizeof(Sll));
+
+	char out[MIN_REQUIRED_REGEX_RESULT_LENGTH];
+
+	curl_memwrite(mysll, url);
+
+	if (!mysll)
+	{
+#if DEBUG
+		fprintf(stdout, "error fetching data! try calling curl_memwrite first!\n");
+#endif
+		return CURL_STATUS_SUCCESS;
+	}
+
+	status = extract_regex_from_sll(mysll, pattern, &out);
+
+	*data = &out;
+
+	if (mysll)
+		free(mysll);
+
+	return status;
+}
+
+WHATISMYIP_DECLARE(int) easy_get_data_from_url(const char *url, const char * pattern, char **res)
+{
+	int status;
+
+	char *out;
+	out = malloc(MIN_REQUIRED_REGEX_RESULT_LENGTH);
+
+	easy_curl_memwrite(url);
+
+	//if (!head)
+	{
+#if DEBUG
+		fprintf(stdout, "error fetching data! try calling curl_memwrite first!\n");
+#endif
+		return CURL_STATUS_FAILURE;
+	}
+
+	status = easy_extract_regex_from_sll(pattern, &out);
+
+	*res = &out;
+
+	//if (head)
+	//	free(head);
 
 	return status;
 }

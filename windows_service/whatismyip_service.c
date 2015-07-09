@@ -38,14 +38,6 @@ int WriteToLog(char* str)
 	return 0;
 }
 
-// Service initialization
-int InitService() 
-{ 
-	int result;
-	result = WriteToLog("Monitoring started.");
-	return result; 
-}
-
 void ServiceMain(int argc, char** argv) 
 { 
 	int error; 
@@ -68,25 +60,16 @@ void ServiceMain(int argc, char** argv)
 	if (hStatus == (SERVICE_STATUS_HANDLE)0) 
 	{ 
 		// Registering Control Handler failed
+		WriteToLog("RegisterServiceCtrlHandler started.");
 		return; 
 	}  
-	// Initialize Service 
-	error = InitService(); 
-	if (error) 
-	{
-		// Initialization failed
-		ServiceStatus.dwCurrentState = SERVICE_STOPPED; 
-		ServiceStatus.dwWin32ExitCode = -1; 
-		SetServiceStatus(hStatus, &ServiceStatus); 
-		return; 
-	} 
+	
 	// We report the running status to SCM. 
 	ServiceStatus.dwCurrentState = SERVICE_RUNNING; 
 	SetServiceStatus (hStatus, &ServiceStatus);
- 
 	
-	/* end of whatismyip stuff */
-  
+	WriteToLog("Monitoring started!");
+	 
 	// The worker loop of a service
 	while (ServiceStatus.dwCurrentState == SERVICE_RUNNING)
 	{
@@ -105,8 +88,7 @@ void ServiceMain(int argc, char** argv)
 			status = ftp_upload("ftp://stathizzz:tsakal1@ftp.drivehq.com/", "ip.log");
 			_sleep(100);
 			counter++;
-		}
-  
+		}		
 		result = (status != CURLE_OK)?  WriteToLog("Error uploading file!") : WriteToLog("Successfully uploaded file on ftp!");
 				
 	end:
@@ -129,12 +111,11 @@ void ControlHandler(DWORD request)
    { 
       case SERVICE_CONTROL_STOP: 
          WriteToLog("Monitoring stopped.");
-
+		 
          ServiceStatus.dwWin32ExitCode = 0; 
          ServiceStatus.dwCurrentState = SERVICE_STOPPED; 
          SetServiceStatus (hStatus, &ServiceStatus);
-         return; 
- 
+		 return;  
       case SERVICE_CONTROL_SHUTDOWN: 
          WriteToLog("Monitoring stopped.");
 

@@ -14,6 +14,6 @@
 #include <unistd.h>
 #endif
 
-#include <curl/types.h>
+//#include <curl/types.h>
 #include <curl/easy.h>
 
