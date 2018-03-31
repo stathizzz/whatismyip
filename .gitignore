@@ -2,3 +2,9 @@ windows_service/Win32
 whatismyip/Win32
 libsll/msw/Win32
 libcurl/Win32
+*.tlog
+*.lib
+*.exe
+*.obj
+*.ipch
+*.sdf
