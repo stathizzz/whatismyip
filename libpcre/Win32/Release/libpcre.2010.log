@@ -1,10 +1,77 @@
-﻿Build started 4/18/2015 9:28:38 PM.
-     1>Project "C:\Users\vaderas\workspace\whatismyp\libpcre\libpcre.2010.vcxproj" on node 2 (Build target(s)).
-     1>C:\Program Files (x86)\MSBuild\12.0\bin\Microsoft.Common.CurrentVersion.targets(1430,5): warning : The referenced project 'pcre_chartables.c.2010.vcxproj' does not exist.
-     1>Lib:
-         libpcre.2010.vcxproj -> C:\Users\vaderas\workspace\whatismyp\libpcre\Win32\Release\libpcre.lib
-     1>Done Building Project "C:\Users\vaderas\workspace\whatismyp\libpcre\libpcre.2010.vcxproj" (Build target(s)).
+﻿Build started 20/5/2018 12:47:19 πμ.
+     1>Project "F:\workspace\whatismyip\libpcre\libpcre.2010.vcxproj" on node 2 (Build target(s)).
+     1>C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\Microsoft.Common.CurrentVersion.targets(1823,5): warning : The referenced project 'pcre_chartables.c.2010.vcxproj' does not exist.
+     1>InitializeBuildStatus:
+         Creating "Win32\Release\libpcre.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Tools\MSVC\14.13.26128\bin\HostX86\x86\CL.exe /c /IF:\workspace\whatismyip\libpcre\ /IF:\workspace\whatismyip\libpcre\pcre /Zi /nologo /W3 /WX- /diagnostics:classic /O2 /Ob1 /Oy- /D _WIN32 /D WIN32 /D NDEBUG /D _WINDOWS /D LIBPCRE_EXPORTS /D SUPPORT_UTF8 /D SUPPORT_UCP /D POSIX_MALLOC_THRESHOLD=10 /D NO_RECURSE /D PCRE_DEFINITION /D PCRE_STATIC /D HAVE_CONFIG_H /GF /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Win32\Release\\" /Fd"Win32\Release\libpcre.pdb" /Gd /TC /analyze- /FC /errorReport:prompt pcre_chartables.c F:\workspace\whatismyip\libpcre\pcre\pcre_compile.c F:\workspace\whatismyip\libpcre\pcre\pcre_config.c F:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c F:\workspace\whatismyip\libpcre\pcre\pcre_exec.c F:\workspace\whatismyip\libpcre\pcre\pcre_fullinfo.c F:\workspace\whatismyip\libpcre\pcre\pcre_get.c F:\workspace\whatismyip\libpcre\pcre\pcre_globals.c F:\workspace\whatismyip\libpcre\pcre\pcre_info.c F:\workspace\whatismyip\libpcre\pcre\pcre_maketables.c F:\workspace\whatismyip\libpcre\pcre\pcre_ord2utf8.c F:\workspace\whatismyip\libpcre\pcre\pcre_refcount.c F:\workspace\whatismyip\libpcre\pcre\pcre_study.c F:\workspace\whatismyip\libpcre\pcre\pcre_tables.c F:\workspace\whatismyip\libpcre\pcre\pcre_try_flipped.c F:\workspace\whatismyip\libpcre\pcre\pcre_newline.c F:\workspace\whatismyip\libpcre\pcre\pcre_ucd.c F:\workspace\whatismyip\libpcre\pcre\pcre_ucp_searchfuncs.c F:\workspace\whatismyip\libpcre\pcre\pcre_valid_utf8.c F:\workspace\whatismyip\libpcre\pcre\pcre_version.c F:\workspace\whatismyip\libpcre\pcre\pcre_xclass.c
+         pcre_chartables.c
+         pcre_compile.c
+         pcre_config.c
+         pcre_dfa_exec.c
+         pcre_exec.c
+         pcre_fullinfo.c
+         pcre_get.c
+         pcre_globals.c
+         pcre_info.c
+         pcre_maketables.c
+         pcre_ord2utf8.c
+         pcre_refcount.c
+         pcre_study.c
+         pcre_tables.c
+         pcre_try_flipped.c
+         pcre_newline.c
+         pcre_ucd.c
+         pcre_ucp_searchfuncs.c
+     1>f:\workspace\whatismyip\libpcre\pcre\pcre_ucp_searchfuncs.c(158): warning C4018: '<': signed/unsigned mismatch
+     1>f:\workspace\whatismyip\libpcre\pcre\pcre_ucp_searchfuncs.c(163): warning C4018: '<=': signed/unsigned mismatch
+         pcre_valid_utf8.c
+         pcre_version.c
+         Generating Code...
+         Compiling...
+         pcre_xclass.c
+         Generating Code...
+       Lib:
+         C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Tools\MSVC\14.13.26128\bin\HostX86\x86\Lib.exe /OUT:"Win32\Release\libpcre.lib" /NOLOGO Win32\Release\pcre_chartables.obj
+         Win32\Release\pcre_compile.obj
+         Win32\Release\pcre_config.obj
+         Win32\Release\pcre_dfa_exec.obj
+         Win32\Release\pcre_exec.obj
+         Win32\Release\pcre_fullinfo.obj
+         Win32\Release\pcre_get.obj
+         Win32\Release\pcre_globals.obj
+         Win32\Release\pcre_info.obj
+         Win32\Release\pcre_maketables.obj
+         Win32\Release\pcre_ord2utf8.obj
+         Win32\Release\pcre_refcount.obj
+         Win32\Release\pcre_study.obj
+         Win32\Release\pcre_tables.obj
+         Win32\Release\pcre_try_flipped.obj
+         Win32\Release\pcre_newline.obj
+         Win32\Release\pcre_ucd.obj
+         Win32\Release\pcre_ucp_searchfuncs.obj
+         Win32\Release\pcre_valid_utf8.obj
+         Win32\Release\pcre_version.obj
+         Win32\Release\pcre_xclass.obj
+         libpcre.2010.vcxproj -> F:\workspace\whatismyip\libpcre\Win32\Release\libpcre.lib
+       FinalizeBuildStatus:
+         Deleting file "Win32\Release\libpcre.tlog\unsuccessfulbuild".
+         Touching "Win32\Release\libpcre.tlog\libpcre.lastbuildstate".
+     1>Done Building Project "F:\workspace\whatismyip\libpcre\libpcre.2010.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.24
+       "F:\workspace\whatismyip\libpcre\libpcre.2010.vcxproj" (Build target) (1) ->
+       (ResolveProjectReferences target) -> 
+         C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\Microsoft.Common.CurrentVersion.targets(1823,5): warning : The referenced project 'pcre_chartables.c.2010.vcxproj' does not exist.
+
+
+       "F:\workspace\whatismyip\libpcre\libpcre.2010.vcxproj" (Build target) (1) ->
+       (ClCompile target) -> 
+         f:\workspace\whatismyip\libpcre\pcre\pcre_ucp_searchfuncs.c(158): warning C4018: '<': signed/unsigned mismatch
+         f:\workspace\whatismyip\libpcre\pcre\pcre_ucp_searchfuncs.c(163): warning C4018: '<=': signed/unsigned mismatch
+
+    3 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:11.36

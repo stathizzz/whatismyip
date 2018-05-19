@@ -75,28 +75,28 @@
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>C:\Users\vaderas\workspace\whatismyp\curl-7.41.0\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\lib\libcurl_a.lib;C:\Users\vaderas\workspace\whatismyp\libpcre\Win32\Release\libpcre.lib;C:\Users\vaderas\workspace\whatismyp\libsll\msw\Win32\Release\sll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>curllib.lib;libpcre.lib;sll.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\libsll\msw\$(Platform)\$(Configuration);..\libpcre\$(Platform)\$(Configuration);..\libcurl\$(Platform)\$(Configuration);.\curl-7.41.0\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\lib\</AdditionalLibraryDirectories>
     </Link>
     <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\vaderas\workspace\whatismyp\curl-7.41.0\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\workspace\whatismyip\curl-7.41.0\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WHATISMYIP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <Link>
-      <AdditionalDependencies>C:\Users\vaderas\workspace\whatismyp\curl-7.41.0\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\lib\libcurl_a.lib;C:\Users\vaderas\workspace\whatismyp\libpcre\Win32\Release\libpcre.lib;C:\Users\vaderas\workspace\whatismyp\libsll\msw\Win32\Release\sll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>curllib.lib;libpcre.lib;sll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\libsll\msw\$(Platform)\$(Configuration);..\libpcre\$(Platform)\$(Configuration);..\libcurl\$(Platform)\$(Configuration);.\curl-7.41.0\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\lib\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

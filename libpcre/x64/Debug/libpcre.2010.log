@@ -1,18 +1,18 @@
-﻿c:\Windows\Microsoft.NET\Framework\v4.0.30319\Microsoft.Common.Targets(1200,9): warning : The referenced project 'pcre_chartables.c.2010.vcxproj' does not exist.
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\Microsoft.Common.CurrentVersion.targets(1823,5): warning : The referenced project 'pcre_chartables.c.2010.vcxproj' does not exist.
   pcre_xclass.c
   pcre_version.c
   pcre_valid_utf8.c
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_valid_utf8.c(86): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_valid_utf8.c(94): warning C4244: 'return' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_valid_utf8.c(96): warning C4244: 'return' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_valid_utf8.c(100): warning C4244: 'return' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_valid_utf8.c(110): warning C4244: 'return' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_valid_utf8.c(119): warning C4244: 'return' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_valid_utf8.c(129): warning C4244: 'return' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_valid_utf8.c(154): warning C4244: 'return' : conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_valid_utf8.c(86): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_valid_utf8.c(94): warning C4244: 'return': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_valid_utf8.c(96): warning C4244: 'return': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_valid_utf8.c(100): warning C4244: 'return': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_valid_utf8.c(110): warning C4244: 'return': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_valid_utf8.c(119): warning C4244: 'return': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_valid_utf8.c(129): warning C4244: 'return': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_valid_utf8.c(154): warning C4244: 'return': conversion from '__int64' to 'int', possible loss of data
   pcre_ucp_searchfuncs.c
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_ucp_searchfuncs.c(158): warning C4018: '<' : signed/unsigned mismatch
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_ucp_searchfuncs.c(163): warning C4018: '<=' : signed/unsigned mismatch
+c:\workspace\whatismyip\libpcre\pcre\pcre_ucp_searchfuncs.c(158): warning C4018: '<': signed/unsigned mismatch
+c:\workspace\whatismyip\libpcre\pcre\pcre_ucp_searchfuncs.c(163): warning C4018: '<=': signed/unsigned mismatch
   pcre_ucd.c
   pcre_newline.c
   pcre_try_flipped.c
@@ -26,79 +26,79 @@ C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pc
   pcre_get.c
   pcre_fullinfo.c
   pcre_exec.c
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_exec.c(717): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_exec.c(810): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_exec.c(811): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_exec.c(812): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_exec.c(1030): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_exec.c(1031): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_exec.c(1032): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_exec.c(1303): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_exec.c(1813): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_exec.c(3968): warning C4244: '=' : conversion from '__int64' to 'unsigned int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_exec.c(4159): warning C4244: '=' : conversion from '__int64' to 'unsigned int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_exec.c(5016): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_exec.c(5017): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_exec.c(717): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_exec.c(810): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_exec.c(811): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_exec.c(812): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_exec.c(1030): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_exec.c(1031): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_exec.c(1032): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_exec.c(1303): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_exec.c(1813): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_exec.c(3968): warning C4244: '=': conversion from '__int64' to 'unsigned int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_exec.c(4159): warning C4244: '=': conversion from '__int64' to 'unsigned int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_exec.c(5016): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_exec.c(5017): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
   pcre_dfa_exec.c
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(389): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(401): warning C4244: 'initializing' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(437): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(636): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(637): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(658): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(666): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(675): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(679): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(690): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(697): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(2113): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(2183): warning C4244: 'function' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(2193): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(2220): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(2221): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(2222): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(2272): warning C4244: 'function' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(2283): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(2304): warning C4244: 'function' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(2356): warning C4244: 'function' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(2373): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(2381): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(2445): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(2446): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(2447): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(2484): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_dfa_exec.c(2485): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(389): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(437): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(636): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(637): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(658): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(666): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(675): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(679): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(690): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(697): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(2113): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(2183): warning C4244: 'function': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(2193): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(2220): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(2221): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(2222): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(2272): warning C4244: 'function': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(2283): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(2304): warning C4244: 'function': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(2356): warning C4244: 'function': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(2373): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(2381): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(2445): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(2446): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(2447): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(2484): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(2485): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_dfa_exec.c(401): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
   pcre_config.c
   pcre_compile.c
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(2135): warning C4244: '=' : conversion from '__int64' to 'uschar', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(2161): warning C4244: 'initializing' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(2699): warning C4244: '+=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(2817): warning C4244: '+=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(2974): warning C4244: '+=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(3022): warning C4244: 'function' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(3672): warning C4244: '=' : conversion from '__int64' to 'uschar', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(3782): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(4050): warning C4244: 'initializing' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(4071): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(4139): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(4245): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(4266): warning C4244: 'initializing' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(4345): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(4416): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(4548): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(4739): warning C4244: '=' : conversion from '__int64' to 'uschar', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(4773): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(4857): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(5020): warning C4244: '=' : conversion from '__int64' to 'uschar', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(5044): warning C4244: '=' : conversion from '__int64' to 'uschar', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(5802): warning C4244: 'initializing' : conversion from '__int64' to 'int', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(5816): warning C4244: '=' : conversion from '__int64' to 'uschar', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(5867): warning C4244: '=' : conversion from '__int64' to 'uschar', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(6425): warning C4267: '=' : conversion from 'size_t' to 'pcre_uint32', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(6494): warning C4244: '=' : conversion from '__int64' to 'uschar', possible loss of data
-C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\pcre\pcre_compile.c(6508): warning C4244: '=' : conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(2135): warning C4244: '=': conversion from '__int64' to 'uschar', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(2161): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(2699): warning C4244: '+=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(2817): warning C4244: '+=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(2974): warning C4244: '+=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(3022): warning C4244: 'function': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(3672): warning C4244: '=': conversion from '__int64' to 'uschar', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(3782): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(4071): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(4139): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(4245): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(4345): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(4416): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(4548): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(4739): warning C4244: '=': conversion from '__int64' to 'uschar', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(4773): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(4857): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(5020): warning C4244: '=': conversion from '__int64' to 'uschar', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(5044): warning C4244: '=': conversion from '__int64' to 'uschar', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(4050): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(4266): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(5816): warning C4244: '=': conversion from '__int64' to 'uschar', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(5867): warning C4244: '=': conversion from '__int64' to 'uschar', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(5802): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(6425): warning C4267: '=': conversion from 'size_t' to 'pcre_uint32', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(6494): warning C4244: '=': conversion from '__int64' to 'uschar', possible loss of data
+c:\workspace\whatismyip\libpcre\pcre\pcre_compile.c(6508): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
   Generating Code...
   Compiling...
   pcre_chartables.c
   Generating Code...
-  libpcre.2010.vcxproj -> C:\Users\e.sfikas\Documents\Visual Studio 2010\Projects\iphelper\libpcre\x64\Debug\libpcre.lib
+  libpcre.2010.vcxproj -> C:\workspace\whatismyip\libpcre\x64\Debug\libpcre.lib
