@@ -29,143 +29,152 @@
 #include <curl/curl.h>
 #include <stdlib.h>
 
-#define SLEEP_TIME 300000
+#define TEST 0
+#define SLEEP_TIME 100000
+
 #ifdef WIN32
 #define HOME "WINDIR"
-#define LOGFILE "\\whatismyip.log"
 #else
 #define HOME "/"
-#define LOGFILE "/whatismyip.log"
+#endif
+#pragma comment(lib, "Advapi32")
+
+static SERVICE_STATUS ServiceStatus = { 0 };
+static SERVICE_STATUS_HANDLE hStatus = NULL;
+
+void __stdcall ControlHandler(DWORD request);
+
+void ServiceMain(int argc, char** argv)
+{
+	TCHAR pa[MAX_PATH];
+	
+	GetEnvironmentVariable(HOME, pa, MAX_PATH);
+	strncat(pa, "\\"SERVICE_NAME".log", strlen("\\"SERVICE_NAME".log"));
+
+	InitLog(pa);
+	WriteToLog("Log initialized.\n");
+
+	WriteToLog("Reading arg values\n");
+	WHATISMYIP_ARGS formatted = { 0 };
+	formatArgsAndSaveOnReg(argc, argv, &formatted);
+
+	ServiceStatus.dwServiceType = SERVICE_WIN32;
+	ServiceStatus.dwCurrentState = SERVICE_START_PENDING;
+	ServiceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN;
+	ServiceStatus.dwWin32ExitCode = 0;
+	ServiceStatus.dwServiceSpecificExitCode = 0;
+	ServiceStatus.dwCheckPoint = 0;
+	ServiceStatus.dwWaitHint = 0;
+
+	if (!*formatted.url) // -r is REQUIRED 
+	{
+		WriteToLog("Reading registry values\n");
+		//try reading values from registry
+		readArgsFromReg(&formatted);
+
+		if (!*formatted.url) {
+			ServiceStatus.dwCurrentState = SERVICE_STOPPED;
+			ServiceStatus.dwWin32ExitCode = -1;
+			SetServiceStatus(hStatus, &ServiceStatus);
+			WriteToLog("Args are not enough! Monitoring stopped.\n");
+			return;
+		}
+		WriteToLog("Registry values were read successfully\n");
+	}
+	else {
+		WriteToLog("Arg values were read successfully\n");
+	}
+
+#if !TEST
+	hStatus = RegisterServiceCtrlHandler(SERVICE_NAME, (LPHANDLER_FUNCTION)&ControlHandler);
 #endif
 
-SERVICE_STATUS          ServiceStatus; 
-SERVICE_STATUS_HANDLE   hStatus; 
+#ifdef _DEBUG
+	WriteToLog("RegisterServiceCtrlHandler returned %d.\n", hStatus);
+#endif
 
-
-void  ServiceMain(int argc, char** argv); 
-void  ControlHandler(DWORD request); 
-int InitService();
-int WriteToLog(char* str);
-
-int WriteToLog(char* str)
-{
-	FILE* log;
-	char *path;
-	LPSTR *pa[100];
-	GetEnvironmentVariable(HOME, pa,100);
-	strncat(pa, LOGFILE, strlen(LOGFILE));
-	log = fopen(pa, "a+");
-	if (log == NULL)
-		return -1;
-	fprintf(log, "%s\n", str);
-	fclose(log);
-	return 0;
-}
-
-void ServiceMain(int argc, char** argv) 
-{ 
-	int error; 
-	MEMORYSTATUS memory;
-	int result;
-	
-	CURLcode status ;
-	int counter = 0;
-	status = (CURLcode)-1;
-
-	ServiceStatus.dwServiceType = SERVICE_WIN32; 
-	ServiceStatus.dwCurrentState = SERVICE_START_PENDING; 
-	ServiceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN;
-	ServiceStatus.dwWin32ExitCode = 0; 
-	ServiceStatus.dwServiceSpecificExitCode = 0; 
-	ServiceStatus.dwCheckPoint = 0; 
-	ServiceStatus.dwWaitHint = 0; 
- 
-	hStatus = RegisterServiceCtrlHandler("MemoryStatus", (LPHANDLER_FUNCTION)ControlHandler); 
-	if (hStatus == (SERVICE_STATUS_HANDLE)0) 
-	{ 
+#if !TEST
+	if (hStatus == NULL)
+	{
 		// Registering Control Handler failed
-		WriteToLog("RegisterServiceCtrlHandler started.");
-		return; 
-	}  
-	
+		WriteToLog("RegisterServiceCtrlHandler failed.\n");
+		return;
+	}
+#endif
 	// We report the running status to SCM. 
-	ServiceStatus.dwCurrentState = SERVICE_RUNNING; 
-	SetServiceStatus (hStatus, &ServiceStatus);
-	
-	WriteToLog("Monitoring started!");
-	 
+	ServiceStatus.dwCurrentState = SERVICE_RUNNING;
+	SetServiceStatus(hStatus, &ServiceStatus);
+
+	WriteToLog("Monitoring started!\n");
+
 	// The worker loop of a service
 	while (ServiceStatus.dwCurrentState == SERVICE_RUNNING)
 	{
-		int mystatus;
-		GlobalMemoryStatus(&memory);
-		
+		wifi_try_connect();
+
+		WriteToLog("\n");
 		/* whatismyip stuff */
-		if (mystatus = get_ip_from_url_in_file("http://checkip.dyndns.com", "ip.log") == CURL_STATUS_FAILURE) 
-		{
-			result = WriteToLog("Error creating temporary file for upload!");
+		if (*formatted.output_file && CURLE_OK != easy_get_ip(formatted.url, formatted.output_file)) {
+
+			WriteToLog("Error creating temporary file for upload!\n");
 			goto end;
-		};
-   
-		while(status != CURLE_OK && counter < 3)
-		{
-			status = ftp_upload("ftp://put_your_public_folder_here", "ip.log");
-			_sleep(100);
-			counter++;
-		}		
-		result = (status != CURLE_OK)?  WriteToLog("Error uploading file!") : WriteToLog("Successfully uploaded file on ftp!");
-				
-	end:
-		if (result)
-		{
-			ServiceStatus.dwCurrentState = SERVICE_STOPPED; 
-			ServiceStatus.dwWin32ExitCode = -1; 
-			SetServiceStatus(hStatus, &ServiceStatus);
-			return;
 		}
+		if (*formatted.dropbox_token && CURLE_OK != dropbox_upload_mstsc(formatted.dropbox_token, formatted.url)) {
+
+			WriteToLog("Error uploading file!\n");
+			goto end;
+		}
+
+	end:
 		_sleep(SLEEP_TIME);
 	}
-	return; 
+	WriteToLog("Monitoring stopped!\n");
+	return;
 }
 
 
-void ControlHandler(DWORD request) 
-{ 
-   switch(request) 
-   { 
-      case SERVICE_CONTROL_STOP: 
-         WriteToLog("Monitoring stopped.");
-		 
-         ServiceStatus.dwWin32ExitCode = 0; 
-         ServiceStatus.dwCurrentState = SERVICE_STOPPED; 
-         SetServiceStatus (hStatus, &ServiceStatus);
-		 return;  
-      case SERVICE_CONTROL_SHUTDOWN: 
-         WriteToLog("Monitoring stopped.");
-
-         ServiceStatus.dwWin32ExitCode = 0; 
-         ServiceStatus.dwCurrentState = SERVICE_STOPPED; 
-         SetServiceStatus (hStatus, &ServiceStatus);
-         return; 
-        
-      default:
-         break;
-    } 
- 
-    // Report current status
-    SetServiceStatus (hStatus, &ServiceStatus);
- 
-    return; 
-}
-
-void main() 
+void __stdcall ControlHandler(DWORD request)
 {
-   SERVICE_TABLE_ENTRY ServiceTable[2];
-   ServiceTable[0].lpServiceName = "MemoryStatus";
-   ServiceTable[0].lpServiceProc = (LPSERVICE_MAIN_FUNCTION)ServiceMain;
+	switch (request)
+	{
+	case SERVICE_CONTROL_STOP:
+		WriteToLog("Monitoring stopped.\n");
 
-   ServiceTable[1].lpServiceName = NULL;
-   ServiceTable[1].lpServiceProc = NULL;
-   // Start the control dispatcher thread for our service
-   StartServiceCtrlDispatcher(ServiceTable);  
+		ServiceStatus.dwWin32ExitCode = 0;
+		ServiceStatus.dwCurrentState = SERVICE_STOPPED;
+		SetServiceStatus(hStatus, &ServiceStatus);
+		return;
+	case SERVICE_CONTROL_SHUTDOWN:
+		WriteToLog("Monitoring shut down.\n");
+
+		ServiceStatus.dwWin32ExitCode = 0;
+		ServiceStatus.dwCurrentState = SERVICE_STOPPED;
+		SetServiceStatus(hStatus, &ServiceStatus);
+		return;
+
+	default:
+		break;
+	}
+
+	// Report current status
+	WriteToLog("Service status is set to %d", hStatus);
+	SetServiceStatus(hStatus, &ServiceStatus);
+
+	return;
+}
+
+void main(int argc, char **argv)
+{
+#if TEST
+	ServiceMain(argc, argv);
+#else
+	SERVICE_TABLE_ENTRY ServiceTable[2];
+	ServiceTable[0].lpServiceName = SERVICE_NAME;
+	ServiceTable[0].lpServiceProc = (LPSERVICE_MAIN_FUNCTION)ServiceMain;
+
+	ServiceTable[1].lpServiceName = NULL;
+	ServiceTable[1].lpServiceProc = NULL;
+	// Start the control dispatcher thread for our service
+	StartServiceCtrlDispatcher(ServiceTable);
+#endif
 }

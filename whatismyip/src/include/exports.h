@@ -32,10 +32,12 @@
 
 #ifdef WIN32
 
-#include <WinSock2.h>
-#include <WS2tcpip.h>
+#include <Windows.h>
 #include <assert.h>
 #include <stdint.h>
+#include <iphlpapi.h>
+#include <curl/curl.h>
+#include <errno.h>
 
 #if defined(WHATISMYIP_DECLARE_STATIC)
 #define WHATISMYIP_DECLARE(type)			type __stdcall
@@ -80,105 +82,110 @@
 #endif
 #endif
 
-struct ftp_file 
+struct ftp_file
 {
-  const char *filename;
-  FILE *stream;
+	const char *filename;
+	FILE *stream;
 };
-
 
 struct locale_struct
 {
 	char* locale;
 };
 
-enum curl_status
-{
-	CURL_STATUS_SUCCESS = 0,
-	CURL_STATUS_FAILURE = -1
-};
-
 typedef struct ftp_file *ftp_file_t;
 typedef struct locale_struct locale_struct;
-typedef enum curl_status curl_status_t;
+
+typedef struct WHATISMYIP_ARGS {
+
+	char url[4096];
+	char output_file[MAX_PATH];
+	char upload_file[MAX_PATH];
+	char get_file[MAX_PATH];
+	char ftp_uri[4096];
+	char ftp_file[MAX_PATH];
+	char dropbox_token[BUFSIZ];
+	char dropbox_down_filename[MAX_PATH];
+	char dropbox_up_filename[MAX_PATH];
+	BOOL dropbox_up_mstsc;
+} WHATISMYIP_ARGS;
+
+#define SERVICE_NAME "whatismyip"
+#define SAFE_URL "http://checkip.dyndns.com"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-//
-/*
-* Extract the first regex value from a linked list <buffer> to <result>
-*/
-WHATISMYIP_DECLARE(int) extract_regex_from_sll(void* buffer, const char* pattern, char** result);
 
-/*
-* Write the contents of the <url> to a single linked list <data>
-*/
-WHATISMYIP_DECLARE(int) curl_memwrite(void *data, const char* url);
+	WHATISMYIP_DECLARE(void) formatArgsAndSaveOnReg(int argc, char *argv[], WHATISMYIP_ARGS *out);
 
-/*
-* Set the locale to be used, so that characters retrieved are in the desired locale compatibility
-*/
-WHATISMYIP_DECLARE(void) set_language(const char* nationality);
+	WHATISMYIP_DECLARE(void) readArgsFromReg(WHATISMYIP_ARGS *out);
 
-/*
-* Write the contents of the html page located at <url> to memory
-*/
-WHATISMYIP_DECLARE(int) easy_curl_memwrite(const char *url);
+	WHATISMYIP_DECLARE(void) InitLog(const char* str);
 
-/*
-* Extract the first regex <pattern> match to <result> from a secured memory buffer (written with  easy_curl_memwrite)
-*/
-WHATISMYIP_DECLARE(int) easy_extract_regex_from_sll(const char *pattern, char **result);
+	WHATISMYIP_DECLARE(int) WriteToLog(char* str);
 
-/*
-* Gets your public <ip> address from the specified <url> website echoing it back 
-* This method is equivalent to easy_get_ip_from_url. Only difference is the way the ip is fetched. 
-*/
-WHATISMYIP_DECLARE(int) get_ip_from_url(const char* url, char** ip);
+	/*
+	* Set the locale to be used, so that characters retrieved are in the desired locale compatibility
+	*/
+	WHATISMYIP_DECLARE(void) set_language(const char* nationality);
 
-/*
-* Gets page data from address from the specified <url> website echoing it back
-* This method is equivalent to easy_get_data_from_url. Only difference is the way the data is fetched. 
-*/
-WHATISMYIP_DECLARE(int) get_data_from_url(const char *url, const char * pattern, char **res);
+	/*
+	* Extract the first regex <pattern> match to <result> from a secured memory buffer (written with  easy_curl_memwrite)
+	*/
+	WHATISMYIP_DECLARE(int) easy_extract_regex_from_sll(struct curl_slist *head, const char *pattern, char result[]);
 
-/*
-* Gets your public <ip> address from the specified <url> website echoing it back 
-* This method is equivalent to get_ip_from_url. Only difference is the way the ip is fetched. 
-*/
-WHATISMYIP_DECLARE(int) easy_get_ip_from_url(const char* url, char** ip);
+	/*
+	* Gets page data from address from the specified <url> website echoing it back
+	* This method is equivalent to get_data_from_url. It is a simple parser of a webpage url based on a regex.
+	*/
+	WHATISMYIP_DECLARE(CURLcode) easy_get_data(const char *url, const char * pattern, char res[]);
 
-/*
-* Gets page data from address from the specified <url> website echoing it back
-* This method is equivalent to get_data_from_url. It is a simple parser of a webpage url based on a regex.
-*/
-WHATISMYIP_DECLARE(int) easy_get_data_from_url(const char *url, const char * pattern, char **res);
+	/*
+	* Gets your public ip address  in a file with name <filename> from the specified <url> website echoing it back
+	*/
+	WHATISMYIP_DECLARE(CURLcode) easy_get_ip(const char* url, const char* filename);
 
-/*
-* Gets your public ip address  in a file with name <filename> from the specified <url> website echoing it back
-*/
-WHATISMYIP_DECLARE(int) get_ip_from_url_in_file(const char* url, const char* filename);
+	/*
+	* Upload the file on an ftp server defined by the url_no_file uri.
+	* Args:
+	* @url_no_file: the uri of the ftp server, written as ftp://user:password@ftp.server.com/
+	* @file: the path to the file to upload
+	*/
+	WHATISMYIP_DECLARE(CURLcode) ftp_upload(char *url, const char *filepath, char *newname);
 
-/*
-* Posts the data from the specified <url> in a file with name <filename>
-*/
-WHATISMYIP_DECLARE(int) get_httpdata_in_file(const char* url, const char* filename);
+	/*
+	* Download the file from a ftp server
+	* Args:
+	* @full_url: the full uri of the ftp server, written as ftp://user:password@ftp.server.com/thefile
+	*/
+	WHATISMYIP_DECLARE(CURLcode) ftp_get(const char *url, const char *file);
 
-/*
-* Upload the file on an ftp server defined by the url_no_file uri.
-* Args:
-* @url_no_file: the uri of the ftp server, written as ftp://user:password@ftp.server.com/
-* @file: the path to the file to upload 
-*/
-WHATISMYIP_DECLARE(int) ftp_upload(char *url_no_file, char* file);
+	WHATISMYIP_DECLARE(CURLcode) dropbox_upload(const char *token, const char *name, BYTE *data, size_t datalen);
 
-/*
-* Download the file from a ftp server 
-* Args:
-* @full_url: the full uri of the ftp server, written as ftp://user:password@ftp.server.com/thefile
-*/
-WHATISMYIP_DECLARE(int) ftp_get(char *full_url);
+	WHATISMYIP_DECLARE(CURLcode) dropbox_upload_mstsc(const char *token, char *url);
+
+	WHATISMYIP_DECLARE(CURLcode) dropbox_download(const char *token, const char *filename);
+
+	WHATISMYIP_DECLARE(CURLcode) dropbox_remove(const char *token, const char *name);
+
+	WHATISMYIP_DECLARE(CURLcode) box_get_authorize();
+
+	WHATISMYIP_DECLARE(CURLcode) box_get_tokens();
+
+	WHATISMYIP_DECLARE(CURLcode) box_upload(const char *token, const char *name, char *data, size_t datalen);
+
+	WHATISMYIP_DECLARE(CURLcode) box_upload_mstsc(const char *token, char *url);
+
+	WHATISMYIP_DECLARE(CURLcode) box_download(const char *token, const char *filename);
+
+	WHATISMYIP_DECLARE(CURLcode) onedrive_authorize();
+
+	WHATISMYIP_DECLARE(CURLcode) onedrive_upload(const char *token, const char *name, char *data, size_t datalen);
+
+	WHATISMYIP_DECLARE(CURLcode) onedrive_upload_mstsc(const char *token, char *url);
+
+	WHATISMYIP_DECLARE(CURLcode) onedrive_download(const char *token, const char *filename);
 
 #ifdef __cplusplus
 }

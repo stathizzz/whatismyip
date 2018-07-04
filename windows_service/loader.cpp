@@ -46,11 +46,11 @@ LOADER_DECLARE(dso_lib_t) open_dll(const char *path, int global, char **err)
 {
 	HINSTANCE lib;
 
-	lib = LoadLibraryEx(path, NULL, 0);
+	lib = LoadLibraryExA(path, NULL, 0);
 
 	if (!lib) 
 	{
-		LoadLibraryEx(path, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
+		LoadLibraryExA(path, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
 	}
 
 	if (!lib) 

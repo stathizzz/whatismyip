@@ -1,7 +1,26 @@
 # What Is My Ip 
 
-This software checks for your public ip through a public ip echo site. You can either download the IP on a local file or on a public folder you own through ftp upload, so you can check for it from wherever you are. Helper functions include writing and reading to your public folder and installing the software as a service in Windows systems. THe HTTP requests are curl based.
+[About]
+This software checks for your public ip through a public ip echo site. You can either download the IP on a local file, on a public folder you own through ftp upload, or dropbox. The HTTP requests are curl based.
 
+[Helper stuff]
+* writing and reading file thru dropbox
+* writing and reading file thru ftp
+* writing to registry
+* reading from registry
+* getting NIC mac address, as well as public and local IP
+* wi-fi enabling, internet connectivity checked
+* software as a Windows service (Windows 7 and up). 
+
+[Requirements]
+- Windows 7 and up
+- PCRE libary
+- CURL library
+
+[TODO]
+- Integration with OneDrive
+- Integration with Box.com
+ 
 License
 
  Copyright (c) 2013-2018, Sfecas D. Efstathios <stathizzz@gmail.com>.

@@ -25,16 +25,55 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 */
-#ifndef __WHATISMYIP_H
-#define __WHATISMYIP_H
+#include "whatismyip.h"
 
-#include <stdio.h>
-#include <curl/curl.h>
-#include <curl/easy.h>
-#include <pcre.h>
+void getMAC(int type, char mac[], char localip[]) {
 
-#include "exports.h"
+	IP_ADAPTER_INFO tmp;
+	DWORD dwBufLen = 0;
 
-FILE * __cdecl __iob_func(void);
+	// Make an initial call to GetAdaptersInfo to get the necessary size into the dwBufLen variable
+	GetAdaptersInfo(&tmp, &dwBufLen);
 
-#endif
+	PIP_ADAPTER_INFO AdapterInfo = malloc(dwBufLen);
+
+	if (GetAdaptersInfo(AdapterInfo, &dwBufLen) == NO_ERROR) {
+		PIP_ADAPTER_INFO pAdapterInfo = AdapterInfo;// Contains pointer to current adapter info
+		do {
+			if (pAdapterInfo->Type == type) {
+				switch (pAdapterInfo->Type) {
+				case MIB_IF_TYPE_OTHER:
+					// Other
+					break;
+				case MIB_IF_TYPE_ETHERNET:
+					// Ethernet
+					break;
+				case 71:
+					//Wi-Fi
+					WriteToLog("Wi-Fi\n");
+					if (stricmp(pAdapterInfo->IpAddressList.IpAddress.String, "0.0.0.0")) {
+						snprintf(mac, 18, "%02X:%02X:%02X:%02X:%02X:%02X",
+							pAdapterInfo->Address[0], pAdapterInfo->Address[1],
+							pAdapterInfo->Address[2], pAdapterInfo->Address[3],
+							pAdapterInfo->Address[4], pAdapterInfo->Address[5]);
+						snprintf(localip, strlen(pAdapterInfo->IpAddressList.IpAddress.String) + 1, pAdapterInfo->IpAddressList.IpAddress.String);
+					}
+					goto end;
+					break;
+				default:
+					WriteToLog("Unknown type %ld\n", pAdapterInfo->Type);
+					break;
+				}
+			}
+			pAdapterInfo = pAdapterInfo->Next;
+		} while (pAdapterInfo);
+	}
+end:
+	free(AdapterInfo);
+
+	WriteToLog("Local IP Address: %s\n", localip);
+	WriteToLog("MAC address: %s\n", mac);
+}
+
+
+

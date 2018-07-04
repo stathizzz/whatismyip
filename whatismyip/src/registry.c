@@ -25,16 +25,41 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 */
-#ifndef __WHATISMYIP_H
-#define __WHATISMYIP_H
+#include "whatismyip.h"
 
-#include <stdio.h>
-#include <curl/curl.h>
-#include <curl/easy.h>
-#include <pcre.h>
+#define REG_PATH TEXT("Software\\Microsoft\\")##SERVICE_NAME
 
-#include "exports.h"
+void writeToReg(LPCTSTR value, LONG type, LPCTSTR data) {
 
-FILE * __cdecl __iob_func(void);
+	HKEY hKey;
 
-#endif
+	LONG openRes = RegOpenKeyEx(HKEY_LOCAL_MACHINE, REG_PATH, 0, KEY_ALL_ACCESS, &hKey);
+	if (openRes != ERROR_SUCCESS) {
+		openRes = RegCreateKeyEx(HKEY_LOCAL_MACHINE, REG_PATH, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, NULL);
+		if (openRes != ERROR_SUCCESS) {
+			WriteToLog("Error opening a key. Do this from an elevated account.\n");
+			return;
+		}
+	}
+
+	size_t len = type == REG_SZ ? strlen(data) + 1 : sizeof(data);
+	LONG setRes = RegSetValueEx(hKey, value, 0, type, (LPBYTE)data, len);
+	if (setRes != ERROR_SUCCESS) {
+		WriteToLog("Error writing to Registry key %s.\n", value);
+	}
+
+	RegCloseKey(hKey);
+}
+
+void readFromReg(LPCTSTR value, BYTE data[BUFSIZ]) {
+
+	HKEY key;
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REG_PATH, 0, KEY_ALL_ACCESS, &key) != ERROR_SUCCESS)
+	{
+		WriteToLog("Unable to open registry key.\n");
+		return;
+	}
+
+	DWORD bufferSize = BUFSIZ;
+	RegQueryValueEx(key, value, NULL, REG_NONE, data, &bufferSize);
+}

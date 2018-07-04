@@ -25,16 +25,33 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 */
-#ifndef __WHATISMYIP_H
-#define __WHATISMYIP_H
+#ifndef _WIFIF_H_
+# define _WIFI_H_
 
 #include <stdio.h>
-#include <curl/curl.h>
-#include <curl/easy.h>
-#include <pcre.h>
+#include <windows.h>
+#include <wininet.h>
+#include <wlanapi.h>
 
-#include "exports.h"
+typedef struct wifi_s
+{
+	HANDLE MyHandle;
+	DWORD NumberOfItems;
+	WCHAR InterfaceDescription[BUFSIZ];
+	WLAN_INTERFACE_STATE CurrentState;
+	GUID MyGuid;
+	PWSTR Profil;
+	LPCWSTR	Network;
+} wifi_t;
 
-FILE * __cdecl __iob_func(void);
+
+/* WIRELESS */
+WLAN_INTERFACE_STATE check_wifi_status(wchar_t name[]);
+DWORD wifi_create_config(wifi_t *config);
+DWORD wifi_destroy_config(wifi_t config);
+DWORD wifi_scan_networks(wifi_t config, PWLAN_AVAILABLE_NETWORK_LIST *networks);
+DWORD wifi_connect_to_network(wifi_t config, WLAN_AVAILABLE_NETWORK network);
+DWORD wifi_disconnect(wifi_t config);
+void wifi_try_connect();
 
 #endif
