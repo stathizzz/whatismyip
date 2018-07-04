@@ -1,0 +1,9 @@
+Windows Registry Editor Version 5.00
+;;; Write whatismyip service data on registry. Without any of these parameters the service will not run
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\whatismyip]
+;;; -r : set the public ip name provider site - REQUIRED
+"-r"="https://api.ipify.org/"
+;;; -d : set the dropbox token of your app to upload file to - OPTIONAL
+"-d"=<YOUR_DROPBOX_ACCESS_TOKEN>
+;;; -o : set the output file on your filesystem that will contain the public ip - OPTIONAL
+"-o"="<LOCAL_FILE_PATH>"

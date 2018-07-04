@@ -1,6 +1,6 @@
 # What Is My Ip 
 
-[About]
+##About
 This software checks for your public ip through a public ip echo site. You can either download the IP on a local file, on a public folder you own through ftp upload, or dropbox. The HTTP requests are curl based.
 
 [Helper stuff]
@@ -12,12 +12,18 @@ This software checks for your public ip through a public ip echo site. You can e
 * wi-fi enabling, internet connectivity checked
 * software as a Windows service (Windows 7 and up). 
 
-[Requirements]
+##Requirements
 - Windows 7 and up
 - PCRE libary
 - CURL library
+- Visual Studio 2017
 
-[TODO]
+##How to run
+- First off, edit the edit_me_first.reg.test file with your own personal details (ckeck ip url site, dropbox token, local filename to save the ip). Rename it to edit_me_first.reg 
+and install the reg keys. The service will seek the values through the windows registry
+- Install the whatismyip.exe, or build it from scratch. It automatically installs the windows service and starts it.
+
+##TODO
 - Integration with OneDrive
 - Integration with Box.com
  

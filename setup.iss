@@ -1,5 +1,5 @@
-; -- Example1.iss --
-; Demonstrates copying 3 files and creating an icon.
+; -- setup.iss --
+; Creates the installation file for the service
 
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES!
 #define MyAppName "whatismyip"
