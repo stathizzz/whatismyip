@@ -108,6 +108,7 @@ typedef struct WHATISMYIP_ARGS {
 	char dropbox_down_filename[MAX_PATH];
 	char dropbox_up_filename[MAX_PATH];
 	BOOL dropbox_up_mstsc;
+	const WCHAR password[128];
 } WHATISMYIP_ARGS;
 
 #define SERVICE_NAME "whatismyip"

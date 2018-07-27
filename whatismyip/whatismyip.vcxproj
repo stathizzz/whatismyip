@@ -101,10 +101,13 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>Default</CompileAs>
       <AdditionalIncludeDirectories>src;src\include;F:\3rdPartyLibs\libpcre\pcre;F:\3rdPartyLibs\curl\builds\libcurl-vc17-x64-release-static-ssl-static-ipv6-sspi\include;C:\OpenSSL-Win64-1_0_2o\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
+      <WarningLevel>Level1</WarningLevel>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libcurl_a.lib;libpcre.lib;libeay32MDd.lib;ssleay32MDd.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies)</AdditionalDependencies>

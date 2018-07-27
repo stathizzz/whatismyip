@@ -39,11 +39,16 @@
 
 #endif
 
+/* minimum required number of parameters */
+#define MIN_REQUIRED 2
+
+locale_struct lang_globals;
 FILE _iob[3] = { NULL, NULL, NULL };
 FILE * __cdecl __iob_func(void) { return _iob; }
 
 extern void writeToReg(LPCTSTR value, LONG type, LPCTSTR data);
 extern void readFromReg(LPCTSTR value, BYTE data[]);
+extern void readFromRegW(LPCWSTR value, BYTE data[]);
 
 /*
 * Get the server response in a file or in memory .
@@ -75,14 +80,6 @@ int WriteToLog(char* format, ...)
 	fclose(log);
 	return 0;
 }
-
-#define NUMBER_OF_OFFSETS 4
-#define MIN_REQUIRED_IP_LENGTH 16
-#define MIN_REQUIRED_REGEX_RESULT_LENGTH 100
-/* minimum required number of parameters */
-#define MIN_REQUIRED 2
-
-static locale_struct lang_globals;
 
 size_t curl_fwrite_callback(void *buffer, size_t size, size_t nmemb, void *stream)
 {
@@ -214,6 +211,7 @@ end:
 
 WHATISMYIP_DECLARE(BOOL) easy_extract_regex_from_sll(struct curl_slist *head, const char *pattern, char result[])
 {
+#define NUMBER_OF_OFFSETS 4
 	int restable[NUMBER_OF_OFFSETS] = { 0 };
 	int res, res2, status = TRUE;
 	const char *regex;
@@ -470,6 +468,7 @@ WHATISMYIP_DECLARE(void) readArgsFromReg(WHATISMYIP_ARGS *out) {
 	readFromReg("-dd", out->dropbox_down_filename);
 	readFromReg("-du", out->dropbox_up_filename);
 	readFromReg("-dm", &out->dropbox_up_mstsc);
+	readFromRegW(L"-pwd", out->password);
 
 	readFromReg("-u", out->upload_file);
 	readFromReg("-g", out->get_file);
@@ -494,7 +493,7 @@ int main(int argc, char *argv[])
 
 	InitLog(SERVICE_NAME".log");
 
-	wifi_try_connect();
+	wifi_try_connect(NULL);
 
 	if (formatted.dropbox_token) {
 		if (formatted.dropbox_up_mstsc)

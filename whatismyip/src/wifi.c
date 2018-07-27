@@ -25,25 +25,29 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 */
+#include <stdlib.h>
 #include "wifi.h"
 
 #pragma comment(lib, "wlanapi.lib")
 #pragma comment(lib, "ole32.lib")
-#pragma comment(lib, "Wininet")
+#pragma comment(lib, "Wininet.lib")
 
-DWORD wifi_create_config(wifi_t *config)
+extern int WriteToLog(char* format, ...);
+
+DWORD wifi_create_config(const WCHAR *password, wifi_t *config)
 {
-	PWLAN_INTERFACE_INFO_LIST	InterfaceList;
-	DWORD	Error = ERROR_SUCCESS;
-	HANDLE	Handle = NULL;
-	DWORD	Version = 0;
+	PWLAN_INTERFACE_INFO_LIST InterfaceList = NULL;
+	DWORD Error = ERROR_SUCCESS;
+	HANDLE Handle = NULL;
+	DWORD Version = 0;
 
-	if ((Error = WlanOpenHandle(WLAN_API_VERSION, NULL, &Version, &Handle)) != ERROR_SUCCESS)
+	if ((Error = WlanOpenHandle(WLAN_API_VERSION, NULL, &Version, &Handle)) != ERROR_SUCCESS) {
 		WriteToLog("WlanOpenHandle failed with error %d", Error);
-	else
-		config->MyHandle = Handle;
+		return Error;
+	}
+	
+	config->MyHandle = Handle;
 
-	InterfaceList = NULL;
 	if ((Error = WlanEnumInterfaces(config->MyHandle, NULL, &InterfaceList)) != ERROR_SUCCESS)
 		WriteToLog("WlanOpenHandle failed with error %d", Error);
 	else
@@ -51,8 +55,9 @@ DWORD wifi_create_config(wifi_t *config)
 		config->NumberOfItems = InterfaceList->dwNumberOfItems;
 		config->MyGuid = InterfaceList->InterfaceInfo->InterfaceGuid;
 		config->CurrentState = InterfaceList->InterfaceInfo->isState;
+		memcpy(config->InterfaceDescription, InterfaceList->InterfaceInfo->strInterfaceDescription, wcslen(InterfaceList->InterfaceInfo->strInterfaceDescription)*sizeof(WCHAR));
 	}
-
+	memcpy(config->pwd, password, wcslen(password)*sizeof(WCHAR));
 	return Error;
 }
 
@@ -65,10 +70,126 @@ DWORD wifi_scan_networks(wifi_t config, PWLAN_AVAILABLE_NETWORK_LIST *networks)
 {
 	DWORD Error = ERROR_SUCCESS;
 
-	if ((WlanGetAvailableNetworkList(config.MyHandle, &config.MyGuid, 0x00000001, NULL, networks)) != ERROR_SUCCESS)
-		WriteToLog("WlanGetAvailableNetworkList failed with error %d", Error);
+	if ((Error = WlanGetAvailableNetworkList(config.MyHandle, &config.MyGuid, 0x00000001, NULL, networks)) != ERROR_SUCCESS)
+		WriteToLog("WlanGetAvailableNetworkList failed with error %d\n", Error);
 
 	return Error;
+}
+
+DWORD wifi_set_profile(wifi_t config, WLAN_AVAILABLE_NETWORK net, WLAN_REASON_CODE *code) {
+
+	LPCWSTR tmpTempl1 =
+		L"<?xml version=\"1.0\" encoding=\"US-ASCII\"?>"
+		L"<WLANProfile xmlns=\"http://www.microsoft.com/networking/WLAN/profile/v1\">"
+		L"<name>";
+	LPCWSTR tmpTempl2 =
+		L"</name>"
+		L"<SSIDConfig>"
+		L"<SSID>"
+		L"<name>";
+	LPCWSTR tmpTempl3 =
+		L"</name>"
+		L"</SSID>"
+		L"</SSIDConfig>"
+		L"<connectionType>ESS</connectionType>"
+		L"<connectionMode>auto</connectionMode>"
+		L"<autoSwitch>false</autoSwitch>"
+		L"<MSM>"
+		L"<security>"
+		L"<authEncryption>"
+		L"<authentication>"; //WPA
+	LPCWSTR tmpTempl4 =
+		L"</authentication>"
+		L"<encryption>"; //TKIP
+	LPCWSTR tmpTempl5 =
+		L"</encryption>"
+		L"<useOneX>false</useOneX>"
+		L"</authEncryption>"
+		L"<sharedKey>"
+		L"<keyType>passPhrase</keyType>"
+		L"<protected>false</protected>"
+		L"<keyMaterial>";
+	LPCWSTR tmpTempl6 =
+		L"</keyMaterial>"
+		L"</sharedKey>"
+		L"</security>"
+		L"</MSM>"
+		L"</WLANProfile>";
+		
+	WCHAR templateProfile[4 * BUFSIZ] = { 0 };
+
+	wcsncat(templateProfile, tmpTempl1, wcslen(tmpTempl1));
+	wcsncat(templateProfile, net.strProfileName, wcslen(net.strProfileName));
+	
+	wcsncat(templateProfile, tmpTempl2, wcslen(tmpTempl2));
+	wcsncat(templateProfile, net.strProfileName, wcslen(net.strProfileName));
+	
+	wcsncat(templateProfile, tmpTempl3, wcslen(tmpTempl3));
+	LPWSTR authalgo = L"OPEN";
+	switch (net.dot11DefaultAuthAlgorithm) {
+	case DOT11_AUTH_ALGO_WPA:
+		authalgo = L"WPA";
+		break;
+	case DOT11_AUTH_ALGO_WPA_PSK:
+		authalgo = L"WPAPSK";
+		break;
+	case DOT11_AUTH_ALGO_WPA_NONE:
+		authalgo = L"WPANONE";
+		break;
+	case DOT11_AUTH_ALGO_RSNA:
+		authalgo = L"WPA2-Enterprise-PEAP-MSCHAPv2";
+		break;
+	case DOT11_AUTH_ALGO_RSNA_PSK:
+		authalgo = L"WPA2PSK";
+		break;
+	default:
+		authalgo = L"OPEN";
+		break;
+	}
+	wcsncat(templateProfile, authalgo, wcslen(authalgo));
+
+	wcsncat(templateProfile, tmpTempl4, wcslen(tmpTempl4));
+	LPWSTR encr = L"";
+	switch (net.dot11DefaultCipherAlgorithm) {
+	case DOT11_CIPHER_ALGO_NONE:
+		encr = L"";
+		break;
+	case DOT11_CIPHER_ALGO_WEP40:
+		encr = L"WEP40";
+		break;
+	case DOT11_CIPHER_ALGO_TKIP:
+		encr = L"TKIP";
+		break;
+	case DOT11_CIPHER_ALGO_CCMP:
+		encr = L"CCMP";
+		break;
+	case DOT11_CIPHER_ALGO_WEP104:
+		encr = L"WEP104";
+		break;
+	case DOT11_CIPHER_ALGO_BIP:
+		encr = L"BIP";
+		break;
+	case DOT11_CIPHER_ALGO_GCMP:
+		encr = L"GCMP";
+		break;
+	case DOT11_CIPHER_ALGO_WPA_USE_GROUP:
+		encr = L"WPA";
+		break;
+	case DOT11_CIPHER_ALGO_WEP:
+		encr = L"WEP";
+		break;
+	default:
+		encr = L"";
+		break;
+	}
+	wcsncat(templateProfile, encr, wcslen(encr));
+	
+	wcsncat(templateProfile, tmpTempl5, wcslen(tmpTempl5));
+	wcsncat(templateProfile, config.pwd, wcslen(config.pwd));
+
+	wcsncat(templateProfile, tmpTempl6, wcslen(tmpTempl6));
+
+	return WlanSetProfile(config.MyHandle, &config.MyGuid, 0, templateProfile, NULL, TRUE, NULL, code);
 }
 
 DWORD wifi_connect_to_network(wifi_t config, WLAN_AVAILABLE_NETWORK net)
@@ -76,32 +197,43 @@ DWORD wifi_connect_to_network(wifi_t config, WLAN_AVAILABLE_NETWORK net)
 	DWORD Error = ERROR_SUCCESS;
 	WLAN_CONNECTION_PARAMETERS Connect = { 0 };
 	BSTR profilename;
+	
 	BOOL wideProfileNamePresent = *net.strProfileName != 0;
 	if (wideProfileNamePresent != TRUE) {
 		int Size = lstrlenA(net.dot11Ssid.ucSSID);
 		profilename = SysAllocStringLen(NULL, Size);
 		MultiByteToWideChar(CP_ACP, 0, net.dot11Ssid.ucSSID, Size, profilename, Size);
 	}
+	
 	Connect.wlanConnectionMode = net.bSecurityEnabled == TRUE ? wlan_connection_mode_profile : wlan_connection_mode_discovery_unsecure;
 	Connect.strProfile = wideProfileNamePresent != TRUE ? profilename : net.strProfileName;
 	Connect.pDot11Ssid = &net.dot11Ssid;
 	Connect.pDesiredBssidList = NULL;
 	Connect.dot11BssType = net.dot11BssType;
 	Connect.dwFlags = net.dwFlags;
-	if ((Error = WlanConnect(config.MyHandle, &config.MyGuid, &Connect, NULL)) != ERROR_SUCCESS)
+	
+	if (*config.pwd) {
+		WLAN_REASON_CODE code;
+		if (Error = wifi_set_profile(config, net, &code) != ERROR_SUCCESS) {
+			WCHAR tmp[128];
+			WlanReasonCodeToString(code, 128, tmp, NULL);
+			WriteToLog("Unable to set profile. Error: %ws. Continuing anyway...\n", tmp);
+		}
+	}	
+	if (Error = WlanConnect(config.MyHandle, &config.MyGuid, &Connect, NULL) != ERROR_SUCCESS)
 		switch (Error)
 		{
 		case ERROR_INVALID_HANDLE:
-			WriteToLog("WlanConnect failed with error %d", Error);
+			WriteToLog("Wlan failed to connect on %ws with error %d - Invalid handle\n", Connect.strProfile, Error);
 			break;
 		case ERROR_ACCESS_DENIED:
-			WriteToLog("WlanConnect failed with error %d", Error);
+			WriteToLog("Wlan failed to connect on %ws with error %d - Accecss Denied\n", Connect.strProfile, Error);
 			break;
 		case ERROR_INVALID_PARAMETER:
-			WriteToLog("WlanConnect failed with error %d", Error);
+			WriteToLog("Wlan failed to connect on %ws with error %d - Invalid parameter\n", Connect.strProfile, Error);
 			break;
 		default:
-			WriteToLog("WlanConnect unknown error %d", Error);
+			WriteToLog("Wlan failed to connect on %ws with error %d\n", Connect.strProfile, Error);
 		}
 	
 	return Error;
@@ -131,17 +263,17 @@ WLAN_INTERFACE_STATE check_wifi_status(wchar_t name[]) {
 	if (dwResult != ERROR_SUCCESS) {
 		WriteToLog("WlanOpenHandle failed with error: %u\n", dwResult);
 		// FormatMessage can be used to find out why the function failed
-		return 1;
+		return wlan_interface_state_not_ready;
 	}
 	dwResult = WlanEnumInterfaces(hClient, NULL, &pIfList);
 	if (dwResult != ERROR_SUCCESS) {
 		WriteToLog("WlanEnumInterfaces failed with error: %u\n", dwResult);
+		WlanCloseHandle(hClient, NULL);
 		// FormatMessage can be used to find out why the function failed
-		return 1;
+		return wlan_interface_state_not_ready;
 	}
 	else {
 		WriteToLog("Num Entries: %lu\n", pIfList->dwNumberOfItems);
-		WriteToLog("Current Index: %lu\n", pIfList->dwIndex);
 		for (i = 0; i < (int)pIfList->dwNumberOfItems; i++) {
 			pIfInfo = (WLAN_INTERFACE_INFO *)&pIfList->InterfaceInfo[i];
 			WriteToLog("  Interface Index[%d]:\t %lu\n", i, i);
@@ -188,6 +320,8 @@ WLAN_INTERFACE_STATE check_wifi_status(wchar_t name[]) {
 			WriteToLog("\n");
 		}
 	}
+	WlanCloseHandle(hClient, NULL);
+
 	if (pIfList != NULL) {
 		WlanFreeMemory(pIfList);
 		pIfList = NULL;
@@ -207,7 +341,53 @@ int wlan_network_strength_comparator(const void *v1, const void *v2)
 	return 0;
 }
 
-void wifi_try_connect() {
+void toggle_wifi_windows10() {
+
+	/* simulate opening the network wifi settings menu in win 10 and press the spacebar to toggle wifi on or off (not known)*/
+	TCHAR runme[MAX_PATH];
+	TCHAR driveLetter[3];
+	TCHAR directory[MAX_PATH];
+	TCHAR FinalPath[MAX_PATH];
+	if (!GetModuleFileName(NULL, runme, MAX_PATH)) {
+		WriteToLog("Cannot install service! Error: (%s)\n", strerror(GetLastError()));
+		return;
+	}
+	_splitpath(runme, driveLetter, directory, NULL, NULL);
+	memset(runme, 0, MAX_PATH);
+	snprintf(runme, MAX_PATH, "%s%s%s", driveLetter, directory, "runme.vbs");
+
+	WriteToLog("Open ms-settings window\n");
+	system("start ms-settings:network-wifi");
+
+	_sleep(5000);
+
+	FILE *f = fopen(runme, "w");
+	if (f) {
+		TCHAR buf[MAX_PATH];
+		char *script = "WScript.CreateObject(\"WScript.Shell\").SendKeys \" \"";
+		fwrite(script, sizeof(char), strlen(script) + 1, f);
+		fclose(f);
+		WriteToLog("Running script %s\n", runme);
+		snprintf(buf, MAX_PATH, "cscript /nologo %s", runme);
+		/* following method is gonna fail for a windows service - no keyboard or mouse events possible */
+		system(buf);
+	}
+	else {
+		/* following method is gonna fail for a windows service - no keyboard or mouse events possible */
+		INPUT space = { 0 };
+		space.type = INPUT_KEYBOARD;
+		space.ki.wVk = VK_SPACE;
+		space.ki.dwFlags = 0;
+		/* following method is gonna fail for a windows service - no keyboard or mouse events possible */
+		SendInput(1, &space, sizeof(INPUT));
+		_sleep(300);
+		space.ki.dwFlags = KEYEVENTF_KEYUP;
+		/* following method is gonna fail for a windows service - no keyboard or mouse events possible */
+		SendInput(1, &space, sizeof(INPUT));
+	}
+}
+
+void wifi_try_connect(const WCHAR *password) {
 
 #define GOOGLE_URL "https://www.google.com"
 	BOOL try_toggle = FALSE;
@@ -216,43 +396,51 @@ void wifi_try_connect() {
 		if (InternetCheckConnectionA(GOOGLE_URL, FLAG_ICC_FORCE_CONNECTION, 0)) break;
 
 		BOOL should_break = FALSE;
-		wifi_t wifi_config;
-		wifi_create_config(&wifi_config);
+		wifi_t wifi_config = { 0 };
+		if (wifi_create_config(password, &wifi_config) != ERROR_SUCCESS) {
+			_sleep(5000);
+			continue;
+		}
 
 		PWLAN_AVAILABLE_NETWORK_LIST networks = NULL;
-		wifi_scan_networks(wifi_config, &networks);
+		if (wifi_scan_networks(wifi_config, &networks) != ERROR_SUCCESS) 
+			//DO NOTHING
+			;
 
 		if (!networks) {
-			printf("Wifi NIC is not connected to the system");
-			wchar_t NicName[MAX_PATH] = { 0 };
+			WCHAR NicName[MAX_PATH] = { 0 };
 			WLAN_INTERFACE_STATE state = check_wifi_status(NicName);
 			if (state != wlan_interface_state_connected) {
+				WriteToLog("Wifi NIC %ws is not connected to the system\n", NicName);
 				if (!*NicName) {
-					_wsystem(L"netsh interface set interface \"Wi-Fi\" enabled");
+					WriteToLog("Enabling Wi-Fi interface through netsh\n");
+					system("netsh interface set interface \"Wi-Fi\" enabled");
 				}
 				else {
 					if (try_toggle) {
-						/* simulate opening the network wifi settings menu in win 10 and press the spacebar to toggle wifi on or off (not known)*/
-						system("start ms-settings:network-wifi");
-						_sleep(10000);
-						keybd_event(VK_SPACE, 0, 0, 0);
-						_sleep(1000);
-						keybd_event(VK_SPACE, 0, KEYEVENTF_KEYUP, 0);
-						try_toggle = FALSE;
+
+						toggle_wifi_windows10();
 					}
 					else {
-						wchar_t buf[BUFSIZ] = { 0 };
-						_wsystem(L"netsh interface set interface \"Wi-Fi\" enabled");
+						WCHAR buf[BUFSIZ] = { 0 };
+						WriteToLog("Enabling Wi-Fi interface through netsh\n");
+						system("netsh interface set interface \"Wi-Fi\" enabled");
+						WriteToLog("Enabling Wi-Fi interface through WMI\n");
 						_snwprintf(buf, BUFSIZ, L"wmic path win32_networkadapter where name=\"%s\" call enable", NicName);
 						_wsystem(buf);
-						try_toggle = TRUE;
 					}
-					
+					try_toggle = !try_toggle;
+					WriteToLog("Toggle is %d\n", try_toggle);
 				}
-				_sleep(20000);
+#ifdef _DEBUG
+				_sleep(1000);
+#else
+				_sleep(10000);
+#endif
 			}
-			continue;
+			goto end;
 		}
+		WriteToLog("Networks found!\n");
 		//sort networks based on signal strength
 		qsort(networks->Network, networks->dwNumberOfItems, sizeof(networks->Network[0]), wlan_network_strength_comparator);
 
@@ -260,18 +448,24 @@ void wifi_try_connect() {
 		{
 			DWORD err = wifi_connect_to_network(wifi_config, networks->Network[i]);
 			if (err == ERROR_SUCCESS) {
+#ifdef _DEBUG
+				_sleep(5000);
+#else
 				_sleep(30000);
-
+#endif
 				if (InternetCheckConnectionA(GOOGLE_URL, FLAG_ICC_FORCE_CONNECTION, 0)) {
 					should_break = TRUE;
 					break;
 				}
 					
-			}
+			} else
+				_sleep(1000);
 		}
-
+		end:
 		wifi_destroy_config(wifi_config);
 
 		if (should_break) break;
+
+		_sleep(20);
 	}
 }

@@ -8,7 +8,7 @@
 
 [Setup]
 AppName={#MyAppName}
-AppVersion=1.2.0
+AppVersion=1.5.2
 AppPublisher=Microsoft
 UsePreviousAppDir=yes
 DefaultDirName={userappdata}\{#MyAppName}
@@ -22,12 +22,12 @@ SolidCompression=yes
 ArchitecturesAllowed=x64
 ArchitecturesInstallIn64BitMode=x64
 ; OutputDir=userdocs:Inno Setup Examples Output
-                                                
-[Files]
+                                                           
+[Files]        
 ; Source: "{#MyAppIcoName}"; DestDir: "{app}"
 ; Install MyAppName only if running in 64-bit mode (x64; see above),
 Source: "x64\Release\{#MyAppExeName}"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Check: Is64BitInstallMode; Flags: ignoreversion
-
+                  
 
 [Run]
 ; add the Parameters, WorkingDir and StatusMsg as you wish, just keep here
@@ -35,6 +35,8 @@ Source: "x64\Release\{#MyAppExeName}"; DestDir: "{app}"; DestName: "{#MyAppExeNa
 Filename: "sc.exe"; Parameters: "stop {#MyAppName}"
 Filename: "sc.exe"; Parameters: "delete {#MyAppName}"
 Filename: "sc.exe"; Parameters: "create {#MyAppName} binpath= {app}\{#MyAppExeName}"
-Filename: "sc.exe"; Parameters: "config {#MyAppName}  start= auto"
+Filename: "sc.exe"; Parameters: "config {#MyAppName} start= auto type= own type= interact"
+Filename: "sc.exe"; Parameters: "failure {#MyAppName} reset= 86400 actions= restart/15000/restart/30000//1000"
 Filename: "sc.exe"; Parameters: "start {#MyAppName}"
 
+                                  

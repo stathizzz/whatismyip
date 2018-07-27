@@ -110,7 +110,7 @@ void ServiceMain(int argc, char** argv)
 	// The worker loop of a service
 	while (ServiceStatus.dwCurrentState == SERVICE_RUNNING)
 	{
-		wifi_try_connect();
+		wifi_try_connect(formatted.password);
 
 		WriteToLog("\n");
 		/* whatismyip stuff */
@@ -157,7 +157,7 @@ void __stdcall ControlHandler(DWORD request)
 	}
 
 	// Report current status
-	WriteToLog("Service status is set to %d", hStatus);
+	WriteToLog("Service status is set to %d\n", hStatus);
 	SetServiceStatus(hStatus, &ServiceStatus);
 
 	return;
@@ -177,4 +177,50 @@ void main(int argc, char **argv)
 	// Start the control dispatcher thread for our service
 	StartServiceCtrlDispatcher(ServiceTable);
 #endif
+
+	/*SC_HANDLE schSCManager;
+	SC_HANDLE schService;
+	char szPath[MAX_PATH];
+
+	if (!GetModuleFileName(NULL, szPath, MAX_PATH)) {
+		printf("Error on getting filename\n");
+		return;
+	}
+
+	schSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+	if (NULL == schSCManager) {
+		printf("Error opening SC Manager\n");
+		return;
+	}
+	
+start:
+	schService = CreateService(
+		schSCManager
+		, SERVICE_NAME
+		, SERVICE_NAME
+		, SERVICE_ALL_ACCESS
+		, SERVICE_WIN32_OWN_PROCESS | SERVICE_INTERACTIVE_PROCESS
+		, SERVICE_DEMAND_START
+		, SERVICE_ERROR_NORMAL
+		, szPath
+		, NULL, NULL, NULL, NULL, NULL);
+
+	if (NULL == schService) {
+
+		schService = OpenService(schSCManager, SERVICE_NAME, SERVICE_ALL_ACCESS);
+		if (NULL == schService) {
+			printf("Error creating or opening service\n");
+			goto end;
+		}
+		else {
+			DeleteService(schService);
+			goto start;
+		}
+		
+	}
+
+	CloseServiceHandle(schService);
+
+end:
+	CloseServiceHandle(schSCManager);*/
 }

@@ -40,18 +40,19 @@ typedef struct wifi_s
 	WCHAR InterfaceDescription[BUFSIZ];
 	WLAN_INTERFACE_STATE CurrentState;
 	GUID MyGuid;
-	PWSTR Profil;
-	LPCWSTR	Network;
+	//PWSTR Profil;
+	//LPCWSTR	Network;
+	WCHAR pwd[128];
 } wifi_t;
 
 
 /* WIRELESS */
 WLAN_INTERFACE_STATE check_wifi_status(wchar_t name[]);
-DWORD wifi_create_config(wifi_t *config);
+DWORD wifi_create_config(const WCHAR *password, wifi_t *config);
 DWORD wifi_destroy_config(wifi_t config);
 DWORD wifi_scan_networks(wifi_t config, PWLAN_AVAILABLE_NETWORK_LIST *networks);
 DWORD wifi_connect_to_network(wifi_t config, WLAN_AVAILABLE_NETWORK network);
 DWORD wifi_disconnect(wifi_t config);
-void wifi_try_connect();
+void wifi_try_connect(const WCHAR *password);
 
 #endif

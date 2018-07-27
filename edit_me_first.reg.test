@@ -7,3 +7,5 @@ Windows Registry Editor Version 5.00
 "-d"=<YOUR_DROPBOX_ACCESS_TOKEN>
 ;;; -o : set the output file on your filesystem that will contain the public ip - OPTIONAL
 "-o"="<LOCAL_FILE_PATH>"
+;;; -pwd : set a password for the wifi connection - all wifi spots are tested against the supplied password - OPTIONAL
+"-pwd"="vad1234567"
