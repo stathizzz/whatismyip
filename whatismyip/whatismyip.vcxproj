@@ -115,7 +115,7 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>F:\3rdPartyLibs\curl\builds\libcurl-vc17-x64-release-static-ssl-static-ipv6-sspi\lib;F:\workspace\whatismyip\libpcre\$(Platform)\$(Configuration);C:\OpenSSL-Win64-1_0_2o\lib\VC\static</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:\3rdPartyLibs\curl\builds\libcurl-vc17-x64-release-static-ssl-static-ipv6-sspi\lib;F:\workspace\whatismyip\libpcre\$(Platform)\$(Configuration);C:\OpenSSL-Win64-1_0_2o\lib\VC\static;F:\3rdPartyLibs\libpcre\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
@@ -154,7 +154,7 @@
     </ProjectReference>
     <Link>
       <AdditionalDependencies>libcurl_a.lib;libpcre.lib;libeay32MD.lib;ssleay32MD.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>F:\3rdPartyLibs\curl\builds\libcurl-vc17-x64-release-static-ssl-static-ipv6-sspi\lib;F:\workspace\whatismyip\libpcre\$(Platform)\$(Configuration);C:\OpenSSL-Win64-1_0_2o\lib\VC\static</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:\3rdPartyLibs\curl\builds\libcurl-vc17-x64-release-static-ssl-static-ipv6-sspi\lib;F:\workspace\whatismyip\libpcre\$(Platform)\$(Configuration);C:\OpenSSL-Win64-1_0_2o\lib\VC\static;F:\3rdPartyLibs\libpcre\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>

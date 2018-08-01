@@ -47,6 +47,7 @@ FILE _iob[3] = { NULL, NULL, NULL };
 FILE * __cdecl __iob_func(void) { return _iob; }
 
 extern void writeToReg(LPCTSTR value, LONG type, LPCTSTR data);
+extern void writeToRegW(LPCWSTR value, LONG type, LPCWSTR data);
 extern void readFromReg(LPCTSTR value, BYTE data[]);
 extern void readFromRegW(LPCWSTR value, BYTE data[]);
 
@@ -452,7 +453,23 @@ WHATISMYIP_DECLARE(void) formatArgsAndSaveOnReg(int argc, char *argv[], WHATISMY
 			i++;
 			continue;
 		}
-
+		if (strcmp("-pwd", argv[i]) == 0)
+		{
+			int Size = lstrlenA(argv[i + 1]);
+			MultiByteToWideChar(CP_ACP, 0, argv[i + 1], Size, out->password, Size);
+			writeToRegW(L"-pwd", REG_SZ, out->password);
+			i++;
+			continue;
+		}
+		
+		if (strcmp("--wifi", argv[i]) == 0)
+		{
+			int Size = lstrlenA(argv[i + 1]);
+			MultiByteToWideChar(CP_ACP, 0, argv[i + 1], Size, out->wifi, Size);
+			writeToRegW(L"--wifi", REG_SZ, out->wifi);
+			i++;
+			continue;
+		}
 		return help();
 	}
 
@@ -477,42 +494,39 @@ WHATISMYIP_DECLARE(void) readArgsFromReg(WHATISMYIP_ARGS *out) {
 	readFromReg("-r", out->url);
 	readFromReg("-f", out->ftp_uri);
 
+	readFromRegW(L"--wifi", out->wifi);
 }
 
 #ifndef WHATISMYIP_DECLARE_STATIC
 /* main */
 int main(int argc, char *argv[])
 {
-	if (argc < MIN_REQUIRED)
-	{
-		return help();
-	}
-
+	
 	WHATISMYIP_ARGS formatted = { 0 };
 	formatArgsAndSaveOnReg(argc, argv, &formatted);
 
 	InitLog(SERVICE_NAME".log");
 
-	wifi_try_connect(NULL);
+	wifi_try_connect(formatted.wifi, formatted.password);
 
-	if (formatted.dropbox_token) {
+	if (*formatted.dropbox_token) {
 		if (formatted.dropbox_up_mstsc)
 			dropbox_upload_mstsc(formatted.dropbox_token, formatted.url);
 
-		if (formatted.dropbox_down_filename)
+		if (*formatted.dropbox_down_filename)
 			dropbox_download(formatted.dropbox_token, formatted.dropbox_down_filename);
 
-		if (formatted.dropbox_up_filename)
+		if (*formatted.dropbox_up_filename)
 			dropbox_upload(formatted.dropbox_token, "test.txt", "hehe", 4);
 	}
 
-	if (formatted.output_file) {
+	if (*formatted.output_file) {
 		easy_get_ip(formatted.url, formatted.output_file);
 	}
 
-	if (formatted.upload_file) {
+	if (*formatted.upload_file) {
 
-		if (formatted.ftp_uri)
+		if (*formatted.ftp_uri)
 		{
 			ftp_upload(formatted.ftp_uri, formatted.upload_file, "test");
 		}
@@ -525,9 +539,9 @@ int main(int argc, char *argv[])
 
 	}
 
-	if (formatted.get_file)
+	if (*formatted.get_file)
 	{
-		if (!formatted.ftp_uri)
+		if (!*formatted.ftp_uri)
 		{
 #ifdef DEBUG
 			printf("please provide an ftp uri to upload the file!\n");

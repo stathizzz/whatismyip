@@ -107,10 +107,12 @@ void ServiceMain(int argc, char** argv)
 
 	WriteToLog("Monitoring started!\n");
 
+	srand(time(NULL));
+
 	// The worker loop of a service
 	while (ServiceStatus.dwCurrentState == SERVICE_RUNNING)
 	{
-		wifi_try_connect(formatted.password);
+		wifi_try_connect(formatted.wifi, formatted.password);
 
 		WriteToLog("\n");
 		/* whatismyip stuff */

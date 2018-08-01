@@ -52,6 +52,28 @@ void writeToReg(LPCTSTR value, LONG type, LPCTSTR data) {
 	RegCloseKey(hKey);
 }
 
+void writeToRegW(LPCWSTR value, LONG type, LPCWSTR data) {
+
+	HKEY hKey;
+
+	LONG openRes = RegOpenKeyExW(HKEY_LOCAL_MACHINE, REG_WPATH, 0, KEY_ALL_ACCESS, &hKey);
+	if (openRes != ERROR_SUCCESS) {
+		openRes = RegCreateKeyExW(HKEY_LOCAL_MACHINE, REG_WPATH, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, NULL);
+		if (openRes != ERROR_SUCCESS) {
+			WriteToLog("Error opening a key. Do this from an elevated account.\n");
+			return;
+		}
+	}
+
+	size_t len = type == REG_SZ ? wcslen(data) + 1 : sizeof(data);
+	LONG setRes = RegSetValueExW(hKey, value, 0, type, (LPBYTE)data, len*sizeof(WCHAR));
+	if (setRes != ERROR_SUCCESS) {
+		WriteToLog("Error writing to Registry key %s.\n", value);
+	}
+
+	RegCloseKey(hKey);
+}
+
 void readFromReg(LPCTSTR value, BYTE data[BUFSIZ]) {
 
 	HKEY key;
@@ -64,6 +86,7 @@ void readFromReg(LPCTSTR value, BYTE data[BUFSIZ]) {
 	DWORD bufferSize = BUFSIZ;
 	RegQueryValueEx(key, value, NULL, REG_NONE, data, &bufferSize);
 }
+
 void readFromRegW(LPCWSTR value, BYTE data[BUFSIZ]) {
 
 	HKEY key;

@@ -86,6 +86,8 @@ DWORD wifi_set_profile(wifi_t config, WLAN_AVAILABLE_NETWORK net, WLAN_REASON_CO
 		L"</name>"
 		L"<SSIDConfig>"
 		L"<SSID>"
+		/*L"<hex>";
+		L"</hex>"*/
 		L"<name>";
 	LPCWSTR tmpTempl3 =
 		L"</name>"
@@ -107,26 +109,48 @@ DWORD wifi_set_profile(wifi_t config, WLAN_AVAILABLE_NETWORK net, WLAN_REASON_CO
 		L"</authEncryption>"
 		L"<sharedKey>"
 		L"<keyType>passPhrase</keyType>"
-		L"<protected>false</protected>"
-		L"<keyMaterial>";
+		L"<protected>";
 	LPCWSTR tmpTempl6 =
+		L"</protected>"
+		L"<keyMaterial>";
+	LPCWSTR tmpTempl7 =
 		L"</keyMaterial>"
 		L"</sharedKey>"
 		L"</security>"
 		L"</MSM>"
+		L"<MacRandomization xmlns=\"http://www.microsoft.com/networking/WLAN/profile/v3\">"
+		L"<enableRandomization>true</enableRandomization>"
+		L"<randomizationSeed>";
+	LPCWSTR tmpTempl8 =
+		L"</randomizationSeed>"
+		L"</MacRandomization>"
 		L"</WLANProfile>";
-		
+	
 	WCHAR templateProfile[4 * BUFSIZ] = { 0 };
+	WCHAR profilename[32] = { 0 };
+	BOOL wideProfileNamePresent = net.strProfileName && *net.strProfileName;
+	WCHAR *protect;
+	WCHAR randval[32];
 
 	wcsncat(templateProfile, tmpTempl1, wcslen(tmpTempl1));
-	wcsncat(templateProfile, net.strProfileName, wcslen(net.strProfileName));
+	if (wideProfileNamePresent != TRUE) {
+		int Size = lstrlenA(net.dot11Ssid.ucSSID);
+		MultiByteToWideChar(CP_ACP, 0, net.dot11Ssid.ucSSID, Size, profilename, Size);
+	}
+	else {
+		memcpy(profilename, net.strProfileName, wcslen(net.strProfileName)*sizeof(WCHAR));
+	}
+	wcsncat(templateProfile, profilename, wcslen(profilename));
 	
 	wcsncat(templateProfile, tmpTempl2, wcslen(tmpTempl2));
-	wcsncat(templateProfile, net.strProfileName, wcslen(net.strProfileName));
+	wcsncat(templateProfile, profilename, wcslen(profilename));
 	
 	wcsncat(templateProfile, tmpTempl3, wcslen(tmpTempl3));
-	LPWSTR authalgo = L"OPEN";
+	LPWSTR authalgo = L"";
 	switch (net.dot11DefaultAuthAlgorithm) {
+	case DOT11_AUTH_ALGO_80211_OPEN:
+		authalgo = L"open";
+		break;
 	case DOT11_AUTH_ALGO_WPA:
 		authalgo = L"WPA";
 		break;
@@ -134,16 +158,25 @@ DWORD wifi_set_profile(wifi_t config, WLAN_AVAILABLE_NETWORK net, WLAN_REASON_CO
 		authalgo = L"WPAPSK";
 		break;
 	case DOT11_AUTH_ALGO_WPA_NONE:
-		authalgo = L"WPANONE";
+		authalgo = L"none";
 		break;
 	case DOT11_AUTH_ALGO_RSNA:
-		authalgo = L"WPA2-Enterprise-PEAP-MSCHAPv2";
+		authalgo = L"WPA2";
 		break;
 	case DOT11_AUTH_ALGO_RSNA_PSK:
 		authalgo = L"WPA2PSK";
 		break;
+	case DOT11_AUTH_ALGO_80211_SHARED_KEY:
+		authalgo = L"80211_SHARED_KEY";
+		break;
+	case DOT11_AUTH_ALGO_IHV_START: 
+		authalgo = "IHV_START";
+		break;
+	case DOT11_AUTH_ALGO_IHV_END: 
+		authalgo = "IHV_END";
+		break;
 	default:
-		authalgo = L"OPEN";
+		authalgo = L"open";
 		break;
 	}
 	wcsncat(templateProfile, authalgo, wcslen(authalgo));
@@ -152,7 +185,7 @@ DWORD wifi_set_profile(wifi_t config, WLAN_AVAILABLE_NETWORK net, WLAN_REASON_CO
 	LPWSTR encr = L"";
 	switch (net.dot11DefaultCipherAlgorithm) {
 	case DOT11_CIPHER_ALGO_NONE:
-		encr = L"";
+		encr = L"none";
 		break;
 	case DOT11_CIPHER_ALGO_WEP40:
 		encr = L"WEP40";
@@ -161,7 +194,7 @@ DWORD wifi_set_profile(wifi_t config, WLAN_AVAILABLE_NETWORK net, WLAN_REASON_CO
 		encr = L"TKIP";
 		break;
 	case DOT11_CIPHER_ALGO_CCMP:
-		encr = L"CCMP";
+		encr = L"AES";
 		break;
 	case DOT11_CIPHER_ALGO_WEP104:
 		encr = L"WEP104";
@@ -173,10 +206,16 @@ DWORD wifi_set_profile(wifi_t config, WLAN_AVAILABLE_NETWORK net, WLAN_REASON_CO
 		encr = L"GCMP";
 		break;
 	case DOT11_CIPHER_ALGO_WPA_USE_GROUP:
-		encr = L"WPA";
+		encr = L"WPA_USE_GROUP";
 		break;
 	case DOT11_CIPHER_ALGO_WEP:
 		encr = L"WEP";
+		break;
+	case DOT11_CIPHER_ALGO_IHV_START:
+		encr = L"IHV_START";
+		break;
+	case DOT11_CIPHER_ALGO_IHV_END:
+		encr = L"IHV_END";
 		break;
 	default:
 		encr = L"";
@@ -185,9 +224,19 @@ DWORD wifi_set_profile(wifi_t config, WLAN_AVAILABLE_NETWORK net, WLAN_REASON_CO
 	wcsncat(templateProfile, encr, wcslen(encr));
 	
 	wcsncat(templateProfile, tmpTempl5, wcslen(tmpTempl5));
-	wcsncat(templateProfile, config.pwd, wcslen(config.pwd));
+	//protect = (net.dot11DefaultAuthAlgorithm == DOT11_AUTH_ALGO_80211_OPEN) ? L"false" : L"true:";
+	protect = L"false";
+	wcsncat(templateProfile, protect, wcslen(protect));
 
 	wcsncat(templateProfile, tmpTempl6, wcslen(tmpTempl6));
+	wcsncat(templateProfile, config.pwd, wcslen(config.pwd));
+
+	wcsncat(templateProfile, tmpTempl7, wcslen(tmpTempl7));
+
+	_i64tow((rand() * rand()) % 9000000000 + 1000000000, randval, 10);
+	wcsncat(templateProfile, randval, sizeof(long long));
+	
+	wcsncat(templateProfile, tmpTempl8, wcslen(tmpTempl8));
 
 	return WlanSetProfile(config.MyHandle, &config.MyGuid, 0, templateProfile, NULL, TRUE, NULL, code);
 }
@@ -196,17 +245,18 @@ DWORD wifi_connect_to_network(wifi_t config, WLAN_AVAILABLE_NETWORK net)
 {
 	DWORD Error = ERROR_SUCCESS;
 	WLAN_CONNECTION_PARAMETERS Connect = { 0 };
-	BSTR profilename;
+	WCHAR profilename[32] = { 0 };
 	
-	BOOL wideProfileNamePresent = *net.strProfileName != 0;
+	BOOL wideProfileNamePresent = net.strProfileName && *net.strProfileName;
 	if (wideProfileNamePresent != TRUE) {
 		int Size = lstrlenA(net.dot11Ssid.ucSSID);
-		profilename = SysAllocStringLen(NULL, Size);
 		MultiByteToWideChar(CP_ACP, 0, net.dot11Ssid.ucSSID, Size, profilename, Size);
 	}
-	
+	else {
+		memcpy(profilename, net.strProfileName, wcslen(net.strProfileName)*sizeof(WCHAR));
+	}
 	Connect.wlanConnectionMode = net.bSecurityEnabled == TRUE ? wlan_connection_mode_profile : wlan_connection_mode_discovery_unsecure;
-	Connect.strProfile = wideProfileNamePresent != TRUE ? profilename : net.strProfileName;
+	Connect.strProfile = profilename;
 	Connect.pDot11Ssid = &net.dot11Ssid;
 	Connect.pDesiredBssidList = NULL;
 	Connect.dot11BssType = net.dot11BssType;
@@ -215,9 +265,12 @@ DWORD wifi_connect_to_network(wifi_t config, WLAN_AVAILABLE_NETWORK net)
 	if (*config.pwd) {
 		WLAN_REASON_CODE code;
 		if (Error = wifi_set_profile(config, net, &code) != ERROR_SUCCESS) {
-			WCHAR tmp[128];
+			WCHAR tmp[128] = { 0 };
+			CHAR ansitmp[256] = { 0 };
 			WlanReasonCodeToString(code, 128, tmp, NULL);
-			WriteToLog("Unable to set profile. Error: %ws. Continuing anyway...\n", tmp);
+			size_t sizeRequired = WideCharToMultiByte(CP_UTF8, 0, tmp, wcslen(tmp), NULL, 0, NULL, NULL);
+			WideCharToMultiByte(CP_UTF8, 0, tmp, wcslen(tmp), ansitmp, sizeRequired, NULL, NULL);
+			WriteToLog("Unable to set profile for \"%ws\". Error: %s\n", Connect.strProfile, ansitmp);
 		}
 	}	
 	if (Error = WlanConnect(config.MyHandle, &config.MyGuid, &Connect, NULL) != ERROR_SUCCESS)
@@ -387,7 +440,7 @@ void toggle_wifi_windows10() {
 	}
 }
 
-void wifi_try_connect(const WCHAR *password) {
+void wifi_try_connect(const WCHAR *wifiName, const WCHAR *password) {
 
 #define GOOGLE_URL "https://www.google.com"
 	BOOL try_toggle = FALSE;
@@ -411,10 +464,12 @@ void wifi_try_connect(const WCHAR *password) {
 			WCHAR NicName[MAX_PATH] = { 0 };
 			WLAN_INTERFACE_STATE state = check_wifi_status(NicName);
 			if (state != wlan_interface_state_connected) {
+				WCHAR buf[BUFSIZ] = { 0 };
 				WriteToLog("Wifi NIC %ws is not connected to the system\n", NicName);
 				if (!*NicName) {
-					WriteToLog("Enabling Wi-Fi interface through netsh\n");
-					system("netsh interface set interface \"Wi-Fi\" enabled");
+					WriteToLog("Enabling %ws interface through netsh\n", wifiName);
+					_snwprintf(buf, BUFSIZ, L"netsh interface set interface \"%s\" enabled", wifiName);
+					_wsystem(buf);
 				}
 				else {
 					if (try_toggle) {
@@ -422,15 +477,18 @@ void wifi_try_connect(const WCHAR *password) {
 						toggle_wifi_windows10();
 					}
 					else {
-						WCHAR buf[BUFSIZ] = { 0 };
-						WriteToLog("Enabling Wi-Fi interface through netsh\n");
-						system("netsh interface set interface \"Wi-Fi\" enabled");
-						WriteToLog("Enabling Wi-Fi interface through WMI\n");
+						WriteToLog("Enabling %ws interface through netsh\n", wifiName);
+						_snwprintf(buf, BUFSIZ, L"netsh interface set interface \"%s\" enabled", wifiName);
+						WriteToLog("%ws\n", buf);
+						_wsystem(buf);
+						_sleep(300);
+						memset(buf, 0, BUFSIZ);
+						WriteToLog("Enabling %ws network adapter through WMI\n", NicName);
 						_snwprintf(buf, BUFSIZ, L"wmic path win32_networkadapter where name=\"%s\" call enable", NicName);
+						WriteToLog("%ws\n", buf);
 						_wsystem(buf);
 					}
 					try_toggle = !try_toggle;
-					WriteToLog("Toggle is %d\n", try_toggle);
 				}
 #ifdef _DEBUG
 				_sleep(1000);

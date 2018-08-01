@@ -1,0 +1,35 @@
+WlanGetAvailableNetworkList failed with error -2144067582
+Num Entries: 1
+  Interface Index[0]:	 0
+  InterfaceGUID[0]: {EA684ED8-D80D-4433-BD4F-B1DA862C59D2}
+  Interface Description[0]: Intel(R) Dual Band Wireless-AC 7265
+  Interface State[0]:	 Not connected
+
+Wifi NIC Intel(R) Dual Band Wireless-AC 7265 is not connected to the system
+Enabling Wi-Fi interface through netsh
+netsh interface set interface "Wi-Fi" enabled
+Enabling Intel(R) Dual Band Wireless-AC 7265 network adapter through WMI
+wmic path win32_networkadapter where name="Intel(R) Dual Band Wireless-AC 7265" call enable
+WlanGetAvailableNetworkList failed with error -2144067582
+Num Entries: 1
+  Interface Index[0]:	 0
+  InterfaceGUID[0]: {EA684ED8-D80D-4433-BD4F-B1DA862C59D2}
+  Interface Description[0]: Intel(R) Dual Band Wireless-AC 7265
+  Interface State[0]:	 Not connected
+
+Wifi NIC Intel(R) Dual Band Wireless-AC 7265 is not connected to the system
+Open ms-settings window
+Running script F:\workspace\whatismyip\x64\Release\runme.vbs
+Networks found!
+Wlan failed to connect on Flou Wi-Fi with error 1
+Unable to set profile for "kingkong". Error: Μη έγκυρο μήκος PSK
+Unable to set profile for "kingkong". Error: Μη έγκυρο μήκος PSK
+Wlan failed to connect on kingkong with error 1
+Unable to set profile for "adidas.rhodes". Error: Μη έγκυρο μήκος PSK
+Wlan failed to connect on adidas.rhodes with error 1
+Unable to set profile for "adidas.rhodes". Error: Μη έγκυρο μήκος PSK
+Unable to set profile for "Interni". Error: Μη έγκυρο μήκος κλειδιού
+Wlan failed to connect on Interni with error 1
+Unable to set profile for "Narkissos Theater". Error: Μη έγκυρο μήκος PSK
+Wlan failed to connect on Narkissos Theater with error 1
+Unable to set profile for "Narkissos Theater". Error: Μη έγκυρο μήκος PSK
