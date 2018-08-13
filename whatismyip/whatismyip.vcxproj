@@ -21,13 +21,14 @@
   <ItemGroup>
     <ClCompile Include="src\dropbox.c" />
     <ClCompile Include="src\ftp.c" />
-    <ClCompile Include="src\mac_ip.c" />
+    <ClCompile Include="src\mac_host_ip.cpp" />
     <ClCompile Include="src\registry.c" />
     <ClCompile Include="src\whatismyip.c" />
     <ClCompile Include="src\wifi.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\include\exports.h" />
+    <ClInclude Include="src\include\mac_host_ip.h" />
     <ClInclude Include="src\include\whatismyip.h" />
     <ClInclude Include="src\include\wifi.h" />
   </ItemGroup>
@@ -102,7 +103,7 @@
       </PrecompiledHeaderFile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <CompileAs>Default</CompileAs>
-      <AdditionalIncludeDirectories>src;src\include;F:\3rdPartyLibs\libpcre\pcre;F:\3rdPartyLibs\curl\builds\libcurl-vc17-x64-release-static-ssl-static-ipv6-sspi\include;C:\OpenSSL-Win64-1_0_2o\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\3rdPartyLibs\WinMACSpoofer\winMACSpoofer\winMACSpoofer;src;src\include;F:\3rdPartyLibs\libpcre\pcre;F:\3rdPartyLibs\curl\builds\libcurl-vc17-x64-release-static-ssl-static-ipv6-sspi\include;C:\OpenSSL-Win64-1_0_2o\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <DisableSpecificWarnings>
@@ -140,7 +141,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>src;src\include;F:\3rdPartyLibs\libpcre\pcre;F:\3rdPartyLibs\curl\builds\libcurl-vc17-x64-release-static-ssl-static-ipv6-sspi\include;C:\OpenSSL-Win64-1_0_2o\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\3rdPartyLibs\WinMACSpoofer\winMACSpoofer\winMACSpoofer;src;src\include;F:\3rdPartyLibs\libpcre\pcre;F:\3rdPartyLibs\curl\builds\libcurl-vc17-x64-release-static-ssl-static-ipv6-sspi\include;C:\OpenSSL-Win64-1_0_2o\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;CURL_STATICLIB;PCRE_STATIC;WHATISMYIP_DECLARE_STATIC;WIN32;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Optimization>Full</Optimization>
       <ConformanceMode>true</ConformanceMode>

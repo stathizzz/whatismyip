@@ -125,7 +125,7 @@ extern "C" {
 
 	WHATISMYIP_DECLARE(void) InitLog(const char* str);
 
-	WHATISMYIP_DECLARE(int) WriteToLog(char* str);
+	WHATISMYIP_DECLARE(int) WriteToLog(char* str, ...);
 
 	/*
 	* Set the locale to be used, so that characters retrieved are in the desired locale compatibility
@@ -192,4 +192,11 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+//std::string getMac2();
+
+//WHATISMYIP_DECLARE(void) changeMac();
+
+//WHATISMYIP_DECLARE(void) getHost();
+
+//WHATISMYIP_DECLARE(void) changeHost();
 #endif

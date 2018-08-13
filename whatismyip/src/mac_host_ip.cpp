@@ -25,9 +25,16 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 */
-#include "whatismyip.h"
+#include "spoofMac.h"
+#include "spoofHost.h"
+#include "mac_host_ip.h"
 
-void getMAC(int type, char mac[], char localip[]) {
+//#include "whatismyip.h"
+//Global Variables
+//std::string RANDOM_MAC = "";
+//std::string MANUAL_MAC = "";
+
+extern "C" WHATISMYIP_DECLARE(void) getMAC(int type, char mac[], char localip[]) {
 
 	IP_ADAPTER_INFO tmp;
 	DWORD dwBufLen = 0;
@@ -35,7 +42,7 @@ void getMAC(int type, char mac[], char localip[]) {
 	// Make an initial call to GetAdaptersInfo to get the necessary size into the dwBufLen variable
 	GetAdaptersInfo(&tmp, &dwBufLen);
 
-	PIP_ADAPTER_INFO AdapterInfo = malloc(dwBufLen);
+	PIP_ADAPTER_INFO AdapterInfo = (PIP_ADAPTER_INFO)malloc(dwBufLen);
 
 	if (GetAdaptersInfo(AdapterInfo, &dwBufLen) == NO_ERROR) {
 		PIP_ADAPTER_INFO pAdapterInfo = AdapterInfo;// Contains pointer to current adapter info
@@ -50,7 +57,7 @@ void getMAC(int type, char mac[], char localip[]) {
 					break;
 				case 71:
 					//Wi-Fi
-					WriteToLog("Wi-Fi\n");
+					WriteToLog((char *)"Wi-Fi\n");
 					if (stricmp(pAdapterInfo->IpAddressList.IpAddress.String, "0.0.0.0")) {
 						snprintf(mac, 18, "%02X:%02X:%02X:%02X:%02X:%02X",
 							pAdapterInfo->Address[0], pAdapterInfo->Address[1],
@@ -61,7 +68,7 @@ void getMAC(int type, char mac[], char localip[]) {
 					goto end;
 					break;
 				default:
-					WriteToLog("Unknown type %ld\n", pAdapterInfo->Type);
+					WriteToLog((char *)"Unknown type %ld\n", pAdapterInfo->Type);
 					break;
 				}
 			}
@@ -71,9 +78,25 @@ void getMAC(int type, char mac[], char localip[]) {
 end:
 	free(AdapterInfo);
 
-	WriteToLog("Local IP Address: %s\n", localip);
-	WriteToLog("MAC address: %s\n", mac);
+	WriteToLog((char *)"Local IP Address: %s\n", localip);
+	WriteToLog((char *)"MAC address: %s\n", mac);
 }
 
+std::string winMacSpoofer_getMac() {
 
+	return spoofMac::getCurrentMAcAddress();
+}
 
+void winMacSpoofer_changeMacToRandom() {
+
+}
+
+std::wstring winMacSpoofer_getHost() {
+
+	return spoofHost::getHostName();
+}
+
+void winMacSpoofer_changeHost(std::string newName) {
+
+	spoofHost::setNewHostName(newName);
+}

@@ -28,8 +28,11 @@
 #include <exports.h>
 #include <curl/curl.h>
 #include <stdlib.h>
+#include <string>
+#include "wifi.h"
+#include "mac_host_ip.h"
 
-#define TEST 0
+#define TEST 1
 #define SLEEP_TIME 100000
 
 #ifdef WIN32
@@ -49,7 +52,7 @@ void ServiceMain(int argc, char** argv)
 	TCHAR pa[MAX_PATH];
 	
 	GetEnvironmentVariable(HOME, pa, MAX_PATH);
-	strncat(pa, "\\"SERVICE_NAME".log", strlen("\\"SERVICE_NAME".log"));
+	//strncat(pa, "\\"SERVICE_NAME".log", strlen("\\"SERVICE_NAME".log"));
 
 	InitLog(pa);
 	WriteToLog("Log initialized.\n");
@@ -112,6 +115,14 @@ void ServiceMain(int argc, char** argv)
 	// The worker loop of a service
 	while (ServiceStatus.dwCurrentState == SERVICE_RUNNING)
 	{
+		winMacSpoofer_getMac();
+
+		winMacSpoofer_changeMacToRandom();
+
+		winMacSpoofer_getHost();
+		
+		winMacSpoofer_changeHost("DESKTOP_XXX");
+
 		wifi_try_connect(formatted.wifi, formatted.password);
 
 		WriteToLog("\n");
@@ -128,7 +139,7 @@ void ServiceMain(int argc, char** argv)
 		}
 
 	end:
-		_sleep(SLEEP_TIME);
+		Sleep(SLEEP_TIME);
 	}
 	WriteToLog("Monitoring stopped!\n");
 	return;

@@ -18,7 +18,7 @@
     <ClCompile Include="loader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="whatismyip_service.c">
+    <ClCompile Include="whatismyip_service.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
