@@ -25,14 +25,13 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 */
-#include <exports.h>
 #include <curl/curl.h>
 #include <stdlib.h>
 #include <string>
 #include "wifi.h"
-#include "mac_host_ip.h"
+#include "exports.hpp"
 
-#define TEST 1
+#define TEST 0
 #define SLEEP_TIME 100000
 
 #ifdef WIN32
@@ -49,15 +48,16 @@ void __stdcall ControlHandler(DWORD request);
 
 void ServiceMain(int argc, char** argv)
 {
-	TCHAR pa[MAX_PATH];
+	TCHAR driveletter[MAX_PATH] = { 0 };
+	TCHAR pa[MAX_PATH] = { 0 };
 	
-	GetEnvironmentVariable(HOME, pa, MAX_PATH);
-	//strncat(pa, "\\"SERVICE_NAME".log", strlen("\\"SERVICE_NAME".log"));
-
+	GetEnvironmentVariable(HOME, driveletter, MAX_PATH);
+	snprintf(pa, MAX_PATH, "%s\\%s.log", driveletter, SERVICE_NAME);
+	
 	InitLog(pa);
-	WriteToLog("Log initialized.\n");
+	WriteToLog((char *)"Log initialized.\n");
 
-	WriteToLog("Reading arg values\n");
+	WriteToLog((char *)"Reading arg values\n");
 	WHATISMYIP_ARGS formatted = { 0 };
 	formatArgsAndSaveOnReg(argc, argv, &formatted);
 
@@ -71,7 +71,7 @@ void ServiceMain(int argc, char** argv)
 
 	if (!*formatted.url) // -r is REQUIRED 
 	{
-		WriteToLog("Reading registry values\n");
+		WriteToLog((char *)"Reading registry values\n");
 		//try reading values from registry
 		readArgsFromReg(&formatted);
 
@@ -79,13 +79,13 @@ void ServiceMain(int argc, char** argv)
 			ServiceStatus.dwCurrentState = SERVICE_STOPPED;
 			ServiceStatus.dwWin32ExitCode = -1;
 			SetServiceStatus(hStatus, &ServiceStatus);
-			WriteToLog("Args are not enough! Monitoring stopped.\n");
+			WriteToLog((char *)"Args are not enough! Monitoring stopped.\n");
 			return;
 		}
-		WriteToLog("Registry values were read successfully\n");
+		WriteToLog((char *)"Registry values were read successfully\n");
 	}
 	else {
-		WriteToLog("Arg values were read successfully\n");
+		WriteToLog((char *)"Arg values were read successfully\n");
 	}
 
 #if !TEST
@@ -93,14 +93,14 @@ void ServiceMain(int argc, char** argv)
 #endif
 
 #ifdef _DEBUG
-	WriteToLog("RegisterServiceCtrlHandler returned %d.\n", hStatus);
+	WriteToLog((char *)"RegisterServiceCtrlHandler returned %d.\n", hStatus);
 #endif
 
 #if !TEST
 	if (hStatus == NULL)
 	{
 		// Registering Control Handler failed
-		WriteToLog("RegisterServiceCtrlHandler failed.\n");
+		WriteToLog((char *)"RegisterServiceCtrlHandler failed.\n");
 		return;
 	}
 #endif
@@ -108,40 +108,47 @@ void ServiceMain(int argc, char** argv)
 	ServiceStatus.dwCurrentState = SERVICE_RUNNING;
 	SetServiceStatus(hStatus, &ServiceStatus);
 
-	WriteToLog("Monitoring started!\n");
+	WriteToLog((char *)"Monitoring started!\n");
 
 	srand(time(NULL));
 
+#if 0
+	std::string mac;
+	winMacSpoofer_getMac(&mac);
+
+	LONG ret;
+	if ((ret = winMacSpoofer_changeMac(winMacSpoofer_getRandomMac())) != ERROR_SUCCESS)
+		WriteToLog((char *)"Could not change MAC address. Error: %d\n");
+
+	std::wstring host;
+	winMacSpoofer_getHost(&host);
+
+	winMacSpoofer_changeHost(winMacSpoofer_getRandomHost());
+
+	winMacSpoofer_netshRestart();
+#endif
 	// The worker loop of a service
 	while (ServiceStatus.dwCurrentState == SERVICE_RUNNING)
 	{
-		winMacSpoofer_getMac();
+		wifi_try_connect(formatted.friendly_nic_name, formatted.passwords);
 
-		winMacSpoofer_changeMacToRandom();
-
-		winMacSpoofer_getHost();
-		
-		winMacSpoofer_changeHost("DESKTOP_XXX");
-
-		wifi_try_connect(formatted.wifi, formatted.password);
-
-		WriteToLog("\n");
+		WriteToLog((char *)"\n");
 		/* whatismyip stuff */
 		if (*formatted.output_file && CURLE_OK != easy_get_ip(formatted.url, formatted.output_file)) {
 
-			WriteToLog("Error creating temporary file for upload!\n");
+			WriteToLog((char *)"Error creating temporary file for upload!\n");
 			goto end;
 		}
 		if (*formatted.dropbox_token && CURLE_OK != dropbox_upload_mstsc(formatted.dropbox_token, formatted.url)) {
 
-			WriteToLog("Error uploading file!\n");
+			WriteToLog((char *)"Error uploading file!\n");
 			goto end;
 		}
 
 	end:
-		Sleep(SLEEP_TIME);
+		_sleep(SLEEP_TIME);
 	}
-	WriteToLog("Monitoring stopped!\n");
+	WriteToLog((char *)"Monitoring stopped!\n");
 	return;
 }
 
@@ -151,14 +158,14 @@ void __stdcall ControlHandler(DWORD request)
 	switch (request)
 	{
 	case SERVICE_CONTROL_STOP:
-		WriteToLog("Monitoring stopped.\n");
+		WriteToLog((char *)"Monitoring stopped.\n");
 
 		ServiceStatus.dwWin32ExitCode = 0;
 		ServiceStatus.dwCurrentState = SERVICE_STOPPED;
 		SetServiceStatus(hStatus, &ServiceStatus);
 		return;
 	case SERVICE_CONTROL_SHUTDOWN:
-		WriteToLog("Monitoring shut down.\n");
+		WriteToLog((char *)"Monitoring shut down.\n");
 
 		ServiceStatus.dwWin32ExitCode = 0;
 		ServiceStatus.dwCurrentState = SERVICE_STOPPED;
@@ -170,7 +177,7 @@ void __stdcall ControlHandler(DWORD request)
 	}
 
 	// Report current status
-	WriteToLog("Service status is set to %d\n", hStatus);
+	WriteToLog((char *)"Service status is set to %d\n", hStatus);
 	SetServiceStatus(hStatus, &ServiceStatus);
 
 	return;
@@ -182,7 +189,7 @@ void main(int argc, char **argv)
 	ServiceMain(argc, argv);
 #else
 	SERVICE_TABLE_ENTRY ServiceTable[2];
-	ServiceTable[0].lpServiceName = SERVICE_NAME;
+	ServiceTable[0].lpServiceName = (LPSTR)SERVICE_NAME;
 	ServiceTable[0].lpServiceProc = (LPSERVICE_MAIN_FUNCTION)ServiceMain;
 
 	ServiceTable[1].lpServiceName = NULL;

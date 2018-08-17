@@ -7,7 +7,7 @@ Windows Registry Editor Version 5.00
 "-d"=<YOUR_DROPBOX_ACCESS_TOKEN>
 ;;; -o : set the output file on your filesystem that will contain the public ip - OPTIONAL
 "-o"="<LOCAL_FILE_PATH>"
-;;; -pwd : set a password for the wifi connection - all wifi spots are tested against the supplied password - OPTIONAL
-"-pwd"="1234567"
-;;; --wifi : set the wifi (or ethernet) name as viewed on interfaces (e.g. Wi-Fi, Ethernet) - OPTIONAL
-"--wifi"="Wi-Fi"
+;;; --passwords : set passwords for the connection - all wifi spots are tested against the supplied passwords - OPTIONAL
+"--passwords"=hex(7):<WCHAR HEX VALUES SEPARATED BY COMMA>
+;;; --friendlyNIC : set the NIC friendly (or ethernet) name as viewed on interfaces (e.g. Wi-Fi, Ethernet) - OPTIONAL
+"--friendlyNIC"="Wi-Fi"

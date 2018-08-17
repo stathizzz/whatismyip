@@ -108,8 +108,9 @@ typedef struct WHATISMYIP_ARGS {
 	char dropbox_down_filename[MAX_PATH];
 	char dropbox_up_filename[MAX_PATH];
 	BOOL dropbox_up_mstsc;
-	const WCHAR password[128];
-	const WCHAR wifi[128];
+	FILE *pwd_dictionary;
+	const WCHAR friendly_nic_name[128];
+	const WCHAR passwords[16][128];  //can support up to 16 passwords
 } WHATISMYIP_ARGS;
 
 #define SERVICE_NAME "whatismyip"
@@ -127,6 +128,7 @@ extern "C" {
 
 	WHATISMYIP_DECLARE(int) WriteToLog(char* str, ...);
 
+	WHATISMYIP_DECLARE(void) wifi_try_connect(const WCHAR *wifiName, const WCHAR passwords[][128]);
 	/*
 	* Set the locale to be used, so that characters retrieved are in the desired locale compatibility
 	*/
@@ -192,11 +194,5 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-//std::string getMac2();
 
-//WHATISMYIP_DECLARE(void) changeMac();
-
-//WHATISMYIP_DECLARE(void) getHost();
-
-//WHATISMYIP_DECLARE(void) changeHost();
 #endif

@@ -46,10 +46,10 @@ locale_struct lang_globals;
 FILE _iob[3] = { NULL, NULL, NULL };
 FILE * __cdecl __iob_func(void) { return _iob; }
 
-extern void writeToReg(LPCTSTR value, LONG type, LPCTSTR data);
-extern void writeToRegW(LPCWSTR value, LONG type, LPCWSTR data);
-extern void readFromReg(LPCTSTR value, BYTE data[]);
-extern void readFromRegW(LPCWSTR value, BYTE data[]);
+extern void writeToReg(LPCTSTR value, ULONG type, LPCTSTR data);
+extern void writeToRegW(LPCWSTR value, ULONG type, LPCWSTR data);
+extern void readFromReg(LPCTSTR value, ULONG *type, BYTE data[]);
+extern void readFromRegW(LPCWSTR value, ULONG *type, BYTE data[]);
 
 /*
 * Get the server response in a file or in memory .
@@ -67,18 +67,19 @@ void InitLog(const char *path) {
 
 int WriteToLog(char* format, ...)
 {
-	FILE* log;
-	log = fopen(logfile_, "a+");
-	if (log == NULL) {
-		printf("Error %s \n", strerror(errno));
-		return -1;
+	if (logfile_) {
+		FILE* log = fopen(logfile_, "a+");
+		if (log == NULL) {
+			printf("Error %s \n", strerror(errno));
+			return -1;
+		}
+		va_list argptr;
+		va_start(argptr, format);
+		vfprintf(log, format, argptr);
+		va_end(argptr);
+		//fprintf(log, "%s\n", format);
+		fclose(log);
 	}
-	va_list argptr;
-	va_start(argptr, format);
-	vfprintf(log, format, argptr);
-	va_end(argptr);
-	//fprintf(log, "%s\n", format);
-	fclose(log);
 	return 0;
 }
 
@@ -453,20 +454,21 @@ WHATISMYIP_DECLARE(void) formatArgsAndSaveOnReg(int argc, char *argv[], WHATISMY
 			i++;
 			continue;
 		}
-		if (strcmp("-pwd", argv[i]) == 0)
+		if (strcmp("--passwords", argv[i]) == 0)
 		{
+			//todo
 			int Size = lstrlenA(argv[i + 1]);
-			MultiByteToWideChar(CP_ACP, 0, argv[i + 1], Size, out->password, Size);
-			writeToRegW(L"-pwd", REG_SZ, out->password);
+			MultiByteToWideChar(CP_ACP, 0, argv[i + 1], Size, out->passwords, Size);
+			writeToRegW(L"--passwords", REG_MULTI_SZ, out->passwords);
 			i++;
 			continue;
 		}
 		
-		if (strcmp("--wifi", argv[i]) == 0)
+		if (strcmp("--friendlyNIC", argv[i]) == 0)
 		{
 			int Size = lstrlenA(argv[i + 1]);
-			MultiByteToWideChar(CP_ACP, 0, argv[i + 1], Size, out->wifi, Size);
-			writeToRegW(L"--wifi", REG_SZ, out->wifi);
+			MultiByteToWideChar(CP_ACP, 0, argv[i + 1], Size, out->friendly_nic_name, Size);
+			writeToRegW(L"--friendlyNIC", REG_SZ, out->friendly_nic_name);
 			i++;
 			continue;
 		}
@@ -481,20 +483,36 @@ WHATISMYIP_DECLARE(void) formatArgsAndSaveOnReg(int argc, char *argv[], WHATISMY
 
 WHATISMYIP_DECLARE(void) readArgsFromReg(WHATISMYIP_ARGS *out) {
 
-	readFromReg("-d", out->dropbox_token);
-	readFromReg("-dd", out->dropbox_down_filename);
-	readFromReg("-du", out->dropbox_up_filename);
-	readFromReg("-dm", &out->dropbox_up_mstsc);
-	readFromRegW(L"-pwd", out->password);
+	ULONG type = REG_NONE;
+	readFromReg("-d", &type, out->dropbox_token);
+	readFromReg("-dd", &type, out->dropbox_down_filename);
+	readFromReg("-du", &type, out->dropbox_up_filename);
+	readFromReg("-dm", &type, &out->dropbox_up_mstsc);
+	
+	readFromReg("-u", &type, out->upload_file);
+	readFromReg("-g", &type, out->get_file);
+	readFromReg("-o", &type, out->output_file);
 
-	readFromReg("-u", out->upload_file);
-	readFromReg("-g", out->get_file);
-	readFromReg("-o", out->output_file);
+	readFromReg("-r", &type, out->url);
+	readFromReg("-f", &type, out->ftp_uri);
 
-	readFromReg("-r", out->url);
-	readFromReg("-f", out->ftp_uri);
-
-	readFromRegW(L"--wifi", out->wifi);
+	WCHAR buf[4192];
+	readFromRegW(L"--passwords", &type, buf);
+	if (type == REG_MULTI_SZ) {
+		WCHAR *context = buf;
+		for (int i = 0;  i < sizeof(out->passwords) / sizeof(out->passwords[0]); ++i) {
+			WCHAR *tok = wcstok(context, "/0", &context);
+			if (tok) {
+				memcpy(out->passwords[i], tok, sizeof(WCHAR)*wcslen(tok));
+				if (!*context) context++;
+			}
+			else {
+				break;
+			}
+		}
+		
+	}
+	readFromRegW(L"--friendlyNIC", &type, out->friendly_nic_name);
 }
 
 #ifndef WHATISMYIP_DECLARE_STATIC
@@ -507,7 +525,7 @@ int main(int argc, char *argv[])
 
 	InitLog(SERVICE_NAME".log");
 
-	wifi_try_connect(formatted.wifi, formatted.password);
+	wifi_try_connect(formatted.wifi, formatted.passwords);
 
 	if (*formatted.dropbox_token) {
 		if (formatted.dropbox_up_mstsc)

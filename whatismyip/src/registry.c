@@ -30,7 +30,7 @@
 #define REG_PATH TEXT("Software\\Microsoft\\")##SERVICE_NAME
 #define REG_WPATH TEXT(L"Software\\Microsoft\\")##SERVICE_NAME
 
-void writeToReg(LPCTSTR value, LONG type, LPCTSTR data) {
+void writeToReg(LPCTSTR value, ULONG type, LPCTSTR data) {
 
 	HKEY hKey;
 
@@ -52,7 +52,7 @@ void writeToReg(LPCTSTR value, LONG type, LPCTSTR data) {
 	RegCloseKey(hKey);
 }
 
-void writeToRegW(LPCWSTR value, LONG type, LPCWSTR data) {
+void writeToRegW(LPCWSTR value, ULONG type, LPCWSTR data) {
 
 	HKEY hKey;
 
@@ -74,7 +74,7 @@ void writeToRegW(LPCWSTR value, LONG type, LPCWSTR data) {
 	RegCloseKey(hKey);
 }
 
-void readFromReg(LPCTSTR value, BYTE data[BUFSIZ]) {
+void readFromReg(LPCTSTR value, ULONG *type, BYTE data[BUFSIZ]) {
 
 	HKEY key;
 	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REG_PATH, 0, KEY_ALL_ACCESS, &key) != ERROR_SUCCESS)
@@ -84,10 +84,10 @@ void readFromReg(LPCTSTR value, BYTE data[BUFSIZ]) {
 	}
 
 	DWORD bufferSize = BUFSIZ;
-	RegQueryValueEx(key, value, NULL, REG_NONE, data, &bufferSize);
+	RegQueryValueEx(key, value, NULL, type, data, &bufferSize);
 }
 
-void readFromRegW(LPCWSTR value, BYTE data[BUFSIZ]) {
+void readFromRegW(LPCWSTR value, ULONG *type, BYTE data[BUFSIZ]) {
 
 	HKEY key;
 	if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, REG_WPATH, 0, KEY_ALL_ACCESS, &key) != ERROR_SUCCESS)
@@ -97,5 +97,5 @@ void readFromRegW(LPCWSTR value, BYTE data[BUFSIZ]) {
 	}
 
 	DWORD bufferSize = BUFSIZ;
-	RegQueryValueExW(key, value, NULL, REG_NONE, data, &bufferSize);
+	RegQueryValueExW(key, value, NULL, type, data, &bufferSize);
 }

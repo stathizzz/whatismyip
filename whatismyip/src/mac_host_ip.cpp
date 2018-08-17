@@ -27,12 +27,9 @@
 */
 #include "spoofMac.h"
 #include "spoofHost.h"
-#include "mac_host_ip.h"
+#include "exports.hpp"
 
-//#include "whatismyip.h"
-//Global Variables
-//std::string RANDOM_MAC = "";
-//std::string MANUAL_MAC = "";
+#pragma comment(lib, "kernel32")
 
 extern "C" WHATISMYIP_DECLARE(void) getMAC(int type, char mac[], char localip[]) {
 
@@ -82,21 +79,77 @@ end:
 	WriteToLog((char *)"MAC address: %s\n", mac);
 }
 
-std::string winMacSpoofer_getMac() {
+WHATISMYIP_DECLARE(BOOL) winMacSpoofer_getMac(std::string *mac) {
 
-	return spoofMac::getCurrentMAcAddress();
+	try {
+		*mac = spoofMac::getCurrentMAcAddress();
+	}
+	catch (...) {
+		return FALSE;
+	}
+	return TRUE;
 }
 
-void winMacSpoofer_changeMacToRandom() {
 
+WHATISMYIP_DECLARE(std::string) winMacSpoofer_getRandomMac() {
+
+	return spoofMac::randomizeMAC();
 }
 
-std::wstring winMacSpoofer_getHost() {
+WHATISMYIP_DECLARE(BOOL) winMacSpoofer_getNicFriendlyName(std::wstring *nic) {
 
-	return spoofHost::getHostName();
+	try {
+		*nic = spoofMac::getNicFriendlyName();
+		return TRUE;
+	}
+	catch (...) {
+		return FALSE;
+	}
 }
 
-void winMacSpoofer_changeHost(std::string newName) {
+WHATISMYIP_DECLARE(LONG) winMacSpoofer_changeMac(std::string newmac) {
 
-	spoofHost::setNewHostName(newName);
+	return spoofMac::setNewMac(newmac);
+}
+
+WHATISMYIP_DECLARE(void) winMacSpoofer_netshRestart() {
+
+	return spoofMac::netshRestart();
+}
+
+WHATISMYIP_DECLARE(BOOL) winMacSpoofer_getHost(std::wstring *host) {
+
+	try {
+		*host = spoofHost::getHostName();
+	}
+	catch (...) {
+		return FALSE;
+	}
+	return TRUE;
+}
+
+WHATISMYIP_DECLARE(std::string) winMacSpoofer_getRandomHost() {
+
+	char newValArray[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+		, 'G', 'H', 'I', 'J','K','L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
+
+	std::string newMac = "DESKTOP_";
+
+	for (int i = 0; i < 7; i++) {
+
+		newMac += newValArray[rand() % 36];
+	}
+
+	return newMac;
+}
+
+WHATISMYIP_DECLARE(LONG) winMacSpoofer_changeHost(std::string newName) {
+
+	LONG retval = spoofHost::setNewHostName(newName);
+	if (retval == ERROR_SUCCESS) {
+		SetComputerName(newName.c_str());
+		SetComputerNameEx(ComputerNamePhysicalDnsHostname, newName.c_str());
+		WriteToLog((char *)"Next time the computer is restarted, it will have the %s name\n", newName.c_str());
+	}
+	return retval;
 }

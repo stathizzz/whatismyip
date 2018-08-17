@@ -183,7 +183,7 @@ WHATISMYIP_DECLARE(CURLcode) dropbox_upload_mstsc(const char *token, char *url) 
 
 	// Get and display the name of the computer.
 	GetComputerName(infoBuf, &bufCharCount);
-
+	
 	WriteToLog("Computer name: %s\n", infoBuf);
 
 	//first find the public ip

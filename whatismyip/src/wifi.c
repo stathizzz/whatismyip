@@ -27,6 +27,7 @@
 */
 #include <stdlib.h>
 #include "wifi.h"
+#include "exports.h"
 
 #pragma comment(lib, "wlanapi.lib")
 #pragma comment(lib, "ole32.lib")
@@ -34,7 +35,7 @@
 
 extern int WriteToLog(char* format, ...);
 
-DWORD wifi_create_config(const WCHAR *password, wifi_t *config)
+DWORD wifi_create_config(const WCHAR passwords[][128], wifi_t *config)
 {
 	PWLAN_INTERFACE_INFO_LIST InterfaceList = NULL;
 	DWORD Error = ERROR_SUCCESS;
@@ -45,7 +46,7 @@ DWORD wifi_create_config(const WCHAR *password, wifi_t *config)
 		WriteToLog("WlanOpenHandle failed with error %d", Error);
 		return Error;
 	}
-	
+
 	config->MyHandle = Handle;
 
 	if ((Error = WlanEnumInterfaces(config->MyHandle, NULL, &InterfaceList)) != ERROR_SUCCESS)
@@ -55,9 +56,13 @@ DWORD wifi_create_config(const WCHAR *password, wifi_t *config)
 		config->NumberOfItems = InterfaceList->dwNumberOfItems;
 		config->MyGuid = InterfaceList->InterfaceInfo->InterfaceGuid;
 		config->CurrentState = InterfaceList->InterfaceInfo->isState;
-		memcpy(config->InterfaceDescription, InterfaceList->InterfaceInfo->strInterfaceDescription, wcslen(InterfaceList->InterfaceInfo->strInterfaceDescription)*sizeof(WCHAR));
+		memcpy(config->InterfaceDescription, InterfaceList->InterfaceInfo->strInterfaceDescription, wcslen(InterfaceList->InterfaceInfo->strInterfaceDescription) * sizeof(WCHAR));
 	}
-	memcpy(config->pwd, password, wcslen(password)*sizeof(WCHAR));
+
+	for (int i = 0; i < 16; ++i) {
+		if (!passwords || !*passwords[i]) break;
+		memcpy(config->pwds[i], passwords[i], wcslen(passwords[i]) * sizeof(WCHAR));
+	}
 	return Error;
 }
 
@@ -76,7 +81,7 @@ DWORD wifi_scan_networks(wifi_t config, PWLAN_AVAILABLE_NETWORK_LIST *networks)
 	return Error;
 }
 
-DWORD wifi_set_profile(wifi_t config, WLAN_AVAILABLE_NETWORK net, WLAN_REASON_CODE *code) {
+DWORD wifi_set_profile(wifi_t config, WLAN_AVAILABLE_NETWORK net, const WCHAR *password, WLAN_REASON_CODE *code) {
 
 	LPCWSTR tmpTempl1 =
 		L"<?xml version=\"1.0\" encoding=\"US-ASCII\"?>"
@@ -125,7 +130,7 @@ DWORD wifi_set_profile(wifi_t config, WLAN_AVAILABLE_NETWORK net, WLAN_REASON_CO
 		L"</randomizationSeed>"
 		L"</MacRandomization>"
 		L"</WLANProfile>";
-	
+
 	WCHAR templateProfile[4 * BUFSIZ] = { 0 };
 	WCHAR profilename[32] = { 0 };
 	BOOL wideProfileNamePresent = net.strProfileName && *net.strProfileName;
@@ -138,13 +143,13 @@ DWORD wifi_set_profile(wifi_t config, WLAN_AVAILABLE_NETWORK net, WLAN_REASON_CO
 		MultiByteToWideChar(CP_ACP, 0, net.dot11Ssid.ucSSID, Size, profilename, Size);
 	}
 	else {
-		memcpy(profilename, net.strProfileName, wcslen(net.strProfileName)*sizeof(WCHAR));
+		memcpy(profilename, net.strProfileName, wcslen(net.strProfileName) * sizeof(WCHAR));
 	}
 	wcsncat(templateProfile, profilename, wcslen(profilename));
-	
+
 	wcsncat(templateProfile, tmpTempl2, wcslen(tmpTempl2));
 	wcsncat(templateProfile, profilename, wcslen(profilename));
-	
+
 	wcsncat(templateProfile, tmpTempl3, wcslen(tmpTempl3));
 	LPWSTR authalgo = L"";
 	switch (net.dot11DefaultAuthAlgorithm) {
@@ -169,10 +174,10 @@ DWORD wifi_set_profile(wifi_t config, WLAN_AVAILABLE_NETWORK net, WLAN_REASON_CO
 	case DOT11_AUTH_ALGO_80211_SHARED_KEY:
 		authalgo = L"80211_SHARED_KEY";
 		break;
-	case DOT11_AUTH_ALGO_IHV_START: 
+	case DOT11_AUTH_ALGO_IHV_START:
 		authalgo = "IHV_START";
 		break;
-	case DOT11_AUTH_ALGO_IHV_END: 
+	case DOT11_AUTH_ALGO_IHV_END:
 		authalgo = "IHV_END";
 		break;
 	default:
@@ -222,20 +227,20 @@ DWORD wifi_set_profile(wifi_t config, WLAN_AVAILABLE_NETWORK net, WLAN_REASON_CO
 		break;
 	}
 	wcsncat(templateProfile, encr, wcslen(encr));
-	
+
 	wcsncat(templateProfile, tmpTempl5, wcslen(tmpTempl5));
 	//protect = (net.dot11DefaultAuthAlgorithm == DOT11_AUTH_ALGO_80211_OPEN) ? L"false" : L"true:";
 	protect = L"false";
 	wcsncat(templateProfile, protect, wcslen(protect));
 
 	wcsncat(templateProfile, tmpTempl6, wcslen(tmpTempl6));
-	wcsncat(templateProfile, config.pwd, wcslen(config.pwd));
+	wcsncat(templateProfile, password, wcslen(password));
 
 	wcsncat(templateProfile, tmpTempl7, wcslen(tmpTempl7));
 
 	_i64tow((rand() * rand()) % 9000000000 + 1000000000, randval, 10);
 	wcsncat(templateProfile, randval, sizeof(long long));
-	
+
 	wcsncat(templateProfile, tmpTempl8, wcslen(tmpTempl8));
 
 	return WlanSetProfile(config.MyHandle, &config.MyGuid, 0, templateProfile, NULL, TRUE, NULL, code);
@@ -246,14 +251,14 @@ DWORD wifi_connect_to_network(wifi_t config, WLAN_AVAILABLE_NETWORK net)
 	DWORD Error = ERROR_SUCCESS;
 	WLAN_CONNECTION_PARAMETERS Connect = { 0 };
 	WCHAR profilename[32] = { 0 };
-	
+
 	BOOL wideProfileNamePresent = net.strProfileName && *net.strProfileName;
 	if (wideProfileNamePresent != TRUE) {
 		int Size = lstrlenA(net.dot11Ssid.ucSSID);
 		MultiByteToWideChar(CP_ACP, 0, net.dot11Ssid.ucSSID, Size, profilename, Size);
 	}
 	else {
-		memcpy(profilename, net.strProfileName, wcslen(net.strProfileName)*sizeof(WCHAR));
+		memcpy(profilename, net.strProfileName, wcslen(net.strProfileName) * sizeof(WCHAR));
 	}
 	Connect.wlanConnectionMode = net.bSecurityEnabled == TRUE ? wlan_connection_mode_profile : wlan_connection_mode_discovery_unsecure;
 	Connect.strProfile = profilename;
@@ -261,10 +266,11 @@ DWORD wifi_connect_to_network(wifi_t config, WLAN_AVAILABLE_NETWORK net)
 	Connect.pDesiredBssidList = NULL;
 	Connect.dot11BssType = net.dot11BssType;
 	Connect.dwFlags = net.dwFlags;
-	
-	if (*config.pwd) {
+
+	for (int i = 0; i < sizeof(config.pwds) / sizeof(config.pwds[0]); ++i) {
+		if (!*config.pwds[i]) break;
 		WLAN_REASON_CODE code;
-		if (Error = wifi_set_profile(config, net, &code) != ERROR_SUCCESS) {
+		if (Error = wifi_set_profile(config, net, config.pwds[i], &code) != ERROR_SUCCESS) {
 			WCHAR tmp[128] = { 0 };
 			CHAR ansitmp[256] = { 0 };
 			WlanReasonCodeToString(code, 128, tmp, NULL);
@@ -272,23 +278,25 @@ DWORD wifi_connect_to_network(wifi_t config, WLAN_AVAILABLE_NETWORK net)
 			WideCharToMultiByte(CP_UTF8, 0, tmp, wcslen(tmp), ansitmp, sizeRequired, NULL, NULL);
 			WriteToLog("Unable to set profile for \"%ws\". Error: %s\n", Connect.strProfile, ansitmp);
 		}
-	}	
-	if (Error = WlanConnect(config.MyHandle, &config.MyGuid, &Connect, NULL) != ERROR_SUCCESS)
-		switch (Error)
-		{
-		case ERROR_INVALID_HANDLE:
-			WriteToLog("Wlan failed to connect on %ws with error %d - Invalid handle\n", Connect.strProfile, Error);
+		if (Error = WlanConnect(config.MyHandle, &config.MyGuid, &Connect, NULL) != ERROR_SUCCESS)
+			switch (Error)
+			{
+			case ERROR_INVALID_HANDLE:
+				WriteToLog("Wlan failed to connect on %ws with error %d - Invalid handle\n", Connect.strProfile, Error);
+				break;
+			case ERROR_ACCESS_DENIED:
+				WriteToLog("Wlan failed to connect on %ws with error %d - Accecss Denied\n", Connect.strProfile, Error);
+				break;
+			case ERROR_INVALID_PARAMETER:
+				WriteToLog("Wlan failed to connect on %ws with error %d - Invalid parameter\n", Connect.strProfile, Error);
+				break;
+			default:
+				WriteToLog("Wlan failed to connect on %ws with error %d\n", Connect.strProfile, Error);
+				break;
+			}
+		else
 			break;
-		case ERROR_ACCESS_DENIED:
-			WriteToLog("Wlan failed to connect on %ws with error %d - Accecss Denied\n", Connect.strProfile, Error);
-			break;
-		case ERROR_INVALID_PARAMETER:
-			WriteToLog("Wlan failed to connect on %ws with error %d - Invalid parameter\n", Connect.strProfile, Error);
-			break;
-		default:
-			WriteToLog("Wlan failed to connect on %ws with error %d\n", Connect.strProfile, Error);
-		}
-	
+	}
 	return Error;
 }
 
@@ -440,7 +448,7 @@ void toggle_wifi_windows10() {
 	}
 }
 
-void wifi_try_connect(const WCHAR *wifiName, const WCHAR *password) {
+WHATISMYIP_DECLARE(void) wifi_try_connect(const WCHAR *wifiName, const WCHAR passwords[][128]) {
 
 #define GOOGLE_URL "https://www.google.com"
 	BOOL try_toggle = FALSE;
@@ -450,13 +458,13 @@ void wifi_try_connect(const WCHAR *wifiName, const WCHAR *password) {
 
 		BOOL should_break = FALSE;
 		wifi_t wifi_config = { 0 };
-		if (wifi_create_config(password, &wifi_config) != ERROR_SUCCESS) {
+		if (wifi_create_config(passwords, &wifi_config) != ERROR_SUCCESS) {
 			_sleep(5000);
 			continue;
 		}
 
 		PWLAN_AVAILABLE_NETWORK_LIST networks = NULL;
-		if (wifi_scan_networks(wifi_config, &networks) != ERROR_SUCCESS) 
+		if (wifi_scan_networks(wifi_config, &networks) != ERROR_SUCCESS)
 			//DO NOTHING
 			;
 
@@ -515,11 +523,12 @@ void wifi_try_connect(const WCHAR *wifiName, const WCHAR *password) {
 					should_break = TRUE;
 					break;
 				}
-					
-			} else
+
+			}
+			else
 				_sleep(1000);
 		}
-		end:
+	end:
 		wifi_destroy_config(wifi_config);
 
 		if (should_break) break;

@@ -1,3 +1,6 @@
+#ifndef EXPORTS_HPP_
+#define EXPORTS_HPP_
+
 /*
 * Copyright (c) 2013-2018, Sfecas D. Efstathios <stathizzz@gmail.com>.
 * All rights reserved.
@@ -25,16 +28,23 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 */
-#ifndef MAC_HOST_IP_H
-#define MAC_HOST_IP_H
-
+#include <string>
 #include "exports.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-	void getMAC(int type, char mac[], char localip[]);
-#ifdef __cplusplus
-}
-#endif
+WHATISMYIP_DECLARE(void) winMacSpoofer_netshRestart();
+
+WHATISMYIP_DECLARE(BOOL) winMacSpoofer_getMac(std::string *mac);
+
+WHATISMYIP_DECLARE(std::string) winMacSpoofer_getRandomMac();
+
+WHATISMYIP_DECLARE(BOOL) winMacSpoofer_getNicFriendlyName(std::wstring *);
+
+WHATISMYIP_DECLARE(LONG) winMacSpoofer_changeMac(std::string numac);
+
+WHATISMYIP_DECLARE(BOOL) winMacSpoofer_getHost(std::wstring *);
+
+WHATISMYIP_DECLARE(std::string) winMacSpoofer_getRandomHost();
+
+WHATISMYIP_DECLARE(LONG) winMacSpoofer_changeHost(std::string newName);
+
 #endif

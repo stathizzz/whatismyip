@@ -143,7 +143,7 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>whatismyip.lib;libpcre.lib;libcurl_a.lib;libeay32MD.lib;ssleay32MD.lib;legacy_stdio_definitions.lib;winmm.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winMACSpoofer.lib;whatismyip.lib;libpcre.lib;libcurl_a.lib;libeay32MD.lib;ssleay32MD.lib;legacy_stdio_definitions.lib;winmm.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>F:\3rdPartyLibs\WinMACSpoofer\winMACSpoofer\$(Platform)\$(Configuration)\;..\$(PlatformName)\$(Configuration)\;F:\3rdPartyLibs\curl\builds\libcurl-vc17-x64-release-static-ssl-static-ipv6-sspi\lib;C:\OpenSSL-Win64-1_0_2o\lib\VC\static;F:\3rdPartyLibs\libpcre\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>NotSet</SubSystem>
       <StackCommitSize>
