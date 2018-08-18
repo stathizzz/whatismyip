@@ -35,6 +35,8 @@
 
 #include "exports.h"
 
+#ifndef WHATISMYIP_DECLARE_STATIC
 FILE * __cdecl __iob_func(void);
+#endif
 
 #endif

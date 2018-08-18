@@ -250,26 +250,27 @@ DWORD wifi_connect_to_network(wifi_t config, WLAN_AVAILABLE_NETWORK net)
 {
 	DWORD Error = ERROR_SUCCESS;
 	WLAN_CONNECTION_PARAMETERS Connect = { 0 };
-	WCHAR profilename[32] = { 0 };
-
-	BOOL wideProfileNamePresent = net.strProfileName && *net.strProfileName;
-	if (wideProfileNamePresent != TRUE) {
-		int Size = lstrlenA(net.dot11Ssid.ucSSID);
-		MultiByteToWideChar(CP_ACP, 0, net.dot11Ssid.ucSSID, Size, profilename, Size);
-	}
-	else {
-		memcpy(profilename, net.strProfileName, wcslen(net.strProfileName) * sizeof(WCHAR));
-	}
-	Connect.wlanConnectionMode = net.bSecurityEnabled == TRUE ? wlan_connection_mode_profile : wlan_connection_mode_discovery_unsecure;
-	Connect.strProfile = profilename;
-	Connect.pDot11Ssid = &net.dot11Ssid;
-	Connect.pDesiredBssidList = NULL;
-	Connect.dot11BssType = net.dot11BssType;
-	Connect.dwFlags = net.dwFlags;
+	WCHAR profilename[128] = { 0 };
 
 	for (int i = 0; i < sizeof(config.pwds) / sizeof(config.pwds[0]); ++i) {
-		if (!*config.pwds[i]) break;
+		
 		WLAN_REASON_CODE code;
+		BOOL wideProfileNamePresent = net.strProfileName && *net.strProfileName;
+		if (wideProfileNamePresent != TRUE) {
+			int Size = lstrlenA(net.dot11Ssid.ucSSID);
+			MultiByteToWideChar(CP_ACP, 0, net.dot11Ssid.ucSSID, Size, profilename, Size);
+		}
+		else {
+			memset(profilename, 0, 128);
+			memcpy(profilename, net.strProfileName, wcslen(net.strProfileName) * sizeof(WCHAR));
+		}
+		Connect.wlanConnectionMode = net.bSecurityEnabled == TRUE ? wlan_connection_mode_profile : wlan_connection_mode_discovery_unsecure;
+		Connect.strProfile = profilename;
+		Connect.pDot11Ssid = &net.dot11Ssid;
+		Connect.pDesiredBssidList = NULL;
+		Connect.dot11BssType = net.dot11BssType;
+		Connect.dwFlags = net.dwFlags;
+		WriteToLog("Trying to connect to network %ws with password %ws\n", Connect.strProfile, config.pwds[i]);
 		if (Error = wifi_set_profile(config, net, config.pwds[i], &code) != ERROR_SUCCESS) {
 			WCHAR tmp[128] = { 0 };
 			CHAR ansitmp[256] = { 0 };
@@ -294,8 +295,10 @@ DWORD wifi_connect_to_network(wifi_t config, WLAN_AVAILABLE_NETWORK net)
 				WriteToLog("Wlan failed to connect on %ws with error %d\n", Connect.strProfile, Error);
 				break;
 			}
-		else
+		else {
+			WriteToLog("Successfully connected to network %ws with password %ws\n", Connect.strProfile, config.pwds[i]);
 			break;
+		}
 	}
 	return Error;
 }
@@ -454,8 +457,10 @@ WHATISMYIP_DECLARE(void) wifi_try_connect(const WCHAR *wifiName, const WCHAR pas
 	BOOL try_toggle = FALSE;
 	for (;;) {
 
+		WriteToLog("Trying access to the internet by calling %s...\n", GOOGLE_URL);
 		if (InternetCheckConnectionA(GOOGLE_URL, FLAG_ICC_FORCE_CONNECTION, 0)) break;
 
+		WriteToLog("No access to the internet. Scan for available networks initiated\n");
 		BOOL should_break = FALSE;
 		wifi_t wifi_config = { 0 };
 		if (wifi_create_config(passwords, &wifi_config) != ERROR_SUCCESS) {
@@ -470,6 +475,7 @@ WHATISMYIP_DECLARE(void) wifi_try_connect(const WCHAR *wifiName, const WCHAR pas
 
 		if (!networks) {
 			WCHAR NicName[MAX_PATH] = { 0 };
+			WriteToLog("Networks not found, therefore we check for wifi interface status\n");
 			WLAN_INTERFACE_STATE state = check_wifi_status(NicName);
 			if (state != wlan_interface_state_connected) {
 				WCHAR buf[BUFSIZ] = { 0 };
@@ -481,7 +487,7 @@ WHATISMYIP_DECLARE(void) wifi_try_connect(const WCHAR *wifiName, const WCHAR pas
 				}
 				else {
 					if (try_toggle) {
-
+						WriteToLog("Try toggling the wifi through the ms settings menu. This requires user input\n");
 						toggle_wifi_windows10();
 					}
 					else {
@@ -521,6 +527,7 @@ WHATISMYIP_DECLARE(void) wifi_try_connect(const WCHAR *wifiName, const WCHAR pas
 #endif
 				if (InternetCheckConnectionA(GOOGLE_URL, FLAG_ICC_FORCE_CONNECTION, 0)) {
 					should_break = TRUE;
+					WriteToLog("No access to the internet. REstarting workflow\n");
 					break;
 				}
 
@@ -535,4 +542,5 @@ WHATISMYIP_DECLARE(void) wifi_try_connect(const WCHAR *wifiName, const WCHAR pas
 
 		_sleep(20);
 	}
+	WriteToLog("Access to the internet granted\n");
 }

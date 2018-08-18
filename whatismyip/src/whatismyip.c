@@ -43,8 +43,11 @@
 #define MIN_REQUIRED 2
 
 locale_struct lang_globals;
-FILE _iob[3] = { NULL, NULL, NULL };
+
+
+#ifndef WHATISMYIP_DECLARE_STATIC
 FILE * __cdecl __iob_func(void) { return _iob; }
+#endif
 
 extern void writeToReg(LPCTSTR value, ULONG type, LPCTSTR data);
 extern void writeToRegW(LPCWSTR value, ULONG type, LPCWSTR data);

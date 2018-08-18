@@ -28,11 +28,12 @@
 #include "loader.h"
 
 #if defined WIN32
+FILE _iob[3] = { NULL, NULL, NULL };
+FILE * __cdecl __iob_func(void) { return _iob; }
 /*use 
 * extern "C" { 
 * on functions loaded by dll
 */
-
 LOADER_DECLARE(void) destroy_dll(dso_lib_t *lib)
 {
 	if (lib && *lib) 

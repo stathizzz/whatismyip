@@ -36,6 +36,8 @@
 
 #ifdef WIN32
 
+FILE * __cdecl __iob_func(void);
+
 #if defined(LOADER_DECLARE_STATIC)
 #define LOADER_DECLARE(type)			type __stdcall
 #define LOADER_DECLARE_NONSTD(type)	type __cdecl
