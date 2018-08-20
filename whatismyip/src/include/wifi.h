@@ -53,8 +53,8 @@ extern "C" {
 	DWORD wifi_create_config(const WCHAR passwords[][128], wifi_t *config);
 	DWORD wifi_destroy_config(wifi_t config);
 	DWORD wifi_scan_networks(wifi_t config, PWLAN_AVAILABLE_NETWORK_LIST *networks);
-	DWORD wifi_connect_to_network(wifi_t config, WLAN_AVAILABLE_NETWORK network);
-	DWORD wifi_disconnect(wifi_t config);
+	DWORD wifi_connect_to_network(wifi_t config, WLAN_AVAILABLE_NETWORK network, WLAN_CONNECTION_PARAMETERS *parameters);
+	DWORD wifi_disconnect(wifi_t config, WLAN_CONNECTION_PARAMETERS parameters);
 	
 #ifdef __cplusplus
 }

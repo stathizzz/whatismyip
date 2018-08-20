@@ -29,11 +29,14 @@
 #include "wifi.h"
 #include "exports.h"
 
+
 #pragma comment(lib, "wlanapi.lib")
 #pragma comment(lib, "ole32.lib")
 #pragma comment(lib, "Wininet.lib")
 
 extern int WriteToLog(char* format, ...);
+
+#define GOOGLE_URL "https://www.google.com"
 
 DWORD wifi_create_config(const WCHAR passwords[][128], wifi_t *config)
 {
@@ -58,9 +61,11 @@ DWORD wifi_create_config(const WCHAR passwords[][128], wifi_t *config)
 		config->CurrentState = InterfaceList->InterfaceInfo->isState;
 		memcpy(config->InterfaceDescription, InterfaceList->InterfaceInfo->strInterfaceDescription, wcslen(InterfaceList->InterfaceInfo->strInterfaceDescription) * sizeof(WCHAR));
 	}
-
+	if (!passwords) {
+		return Error;
+	}
 	for (int i = 0; i < 16; ++i) {
-		if (!passwords || !*passwords[i]) break;
+		if (!*passwords[i]) break;
 		memcpy(config->pwds[i], passwords[i], wcslen(passwords[i]) * sizeof(WCHAR));
 	}
 	return Error;
@@ -131,7 +136,7 @@ DWORD wifi_set_profile(wifi_t config, WLAN_AVAILABLE_NETWORK net, const WCHAR *p
 		L"</MacRandomization>"
 		L"</WLANProfile>";
 
-	WCHAR templateProfile[4 * BUFSIZ] = { 0 };
+	WCHAR templateProfile[4096] = { 0 };
 	WCHAR profilename[32] = { 0 };
 	BOOL wideProfileNamePresent = net.strProfileName && *net.strProfileName;
 	WCHAR *protect;
@@ -243,68 +248,86 @@ DWORD wifi_set_profile(wifi_t config, WLAN_AVAILABLE_NETWORK net, const WCHAR *p
 
 	wcsncat(templateProfile, tmpTempl8, wcslen(tmpTempl8));
 
-	return WlanSetProfile(config.MyHandle, &config.MyGuid, 0, templateProfile, NULL, TRUE, NULL, code);
+	return WlanSetProfile(config.MyHandle, &config.MyGuid, 0, templateProfile, NULL, TRUE, NULL, code);	
 }
 
-DWORD wifi_connect_to_network(wifi_t config, WLAN_AVAILABLE_NETWORK net)
+DWORD wifi_connect_to_network(wifi_t config, WLAN_AVAILABLE_NETWORK net, WLAN_CONNECTION_PARAMETERS *parameters)
 {
 	DWORD Error = ERROR_SUCCESS;
-	WLAN_CONNECTION_PARAMETERS Connect = { 0 };
-	WCHAR profilename[128] = { 0 };
-
-	for (int i = 0; i < sizeof(config.pwds) / sizeof(config.pwds[0]); ++i) {
-		
+	int i = 0;
+	size_t siz = config.pwds && config.pwds[0] && *config.pwds[0] ? sizeof(config.pwds) / sizeof(config.pwds[0]) : 0;
+	do {
+		WCHAR *password = config.pwds[i];
+		WCHAR profileName[128] = { 0 };
 		WLAN_REASON_CODE code;
 		BOOL wideProfileNamePresent = net.strProfileName && *net.strProfileName;
 		if (wideProfileNamePresent != TRUE) {
 			int Size = lstrlenA(net.dot11Ssid.ucSSID);
-			MultiByteToWideChar(CP_ACP, 0, net.dot11Ssid.ucSSID, Size, profilename, Size);
+			MultiByteToWideChar(CP_ACP, 0, net.dot11Ssid.ucSSID, Size, profileName, Size);
 		}
 		else {
-			memset(profilename, 0, 128);
-			memcpy(profilename, net.strProfileName, wcslen(net.strProfileName) * sizeof(WCHAR));
+			memcpy(profileName, net.strProfileName, wcslen(net.strProfileName) * sizeof(WCHAR));
 		}
-		Connect.wlanConnectionMode = net.bSecurityEnabled == TRUE ? wlan_connection_mode_profile : wlan_connection_mode_discovery_unsecure;
-		Connect.strProfile = profilename;
-		Connect.pDot11Ssid = &net.dot11Ssid;
-		Connect.pDesiredBssidList = NULL;
-		Connect.dot11BssType = net.dot11BssType;
-		Connect.dwFlags = net.dwFlags;
-		WriteToLog("Trying to connect to network %ws with password %ws\n", Connect.strProfile, config.pwds[i]);
-		if (Error = wifi_set_profile(config, net, config.pwds[i], &code) != ERROR_SUCCESS) {
+		parameters->wlanConnectionMode = wlan_connection_mode_profile;
+		parameters->strProfile = wcsdup(profileName);
+		parameters->pDot11Ssid = &net.dot11Ssid;
+		parameters->pDesiredBssidList = NULL;
+		parameters->dot11BssType = net.dot11BssType;
+		parameters->dwFlags = net.dwFlags;
+		WriteToLog("Trying to connect to network %ws with password %ws\n", parameters->strProfile, password);
+		if (Error = wifi_set_profile(config, net, password, &code) != ERROR_SUCCESS) {
 			WCHAR tmp[128] = { 0 };
 			CHAR ansitmp[256] = { 0 };
 			WlanReasonCodeToString(code, 128, tmp, NULL);
 			size_t sizeRequired = WideCharToMultiByte(CP_UTF8, 0, tmp, wcslen(tmp), NULL, 0, NULL, NULL);
 			WideCharToMultiByte(CP_UTF8, 0, tmp, wcslen(tmp), ansitmp, sizeRequired, NULL, NULL);
-			WriteToLog("Unable to set profile for \"%ws\". Error: %s\n", Connect.strProfile, ansitmp);
+			WriteToLog("Unable to set profile for \"%ws\". Error: %s\n", parameters->strProfile, ansitmp);
+			/* in any case, delete the profile */
+			WlanDeleteProfile(config.MyHandle, &config.MyGuid, parameters->strProfile, NULL);
+			if (parameters->strProfile) free(parameters->strProfile);
+			continue;
 		}
-		if (Error = WlanConnect(config.MyHandle, &config.MyGuid, &Connect, NULL) != ERROR_SUCCESS)
-			switch (Error)
+		if (Error = WlanConnect(config.MyHandle, &config.MyGuid, parameters, NULL) != ERROR_SUCCESS) {
+			switch (Error) 
 			{
 			case ERROR_INVALID_HANDLE:
-				WriteToLog("Wlan failed to connect on %ws with error %d - Invalid handle\n", Connect.strProfile, Error);
+				WriteToLog("Wlan failed to connect on %ws with error %d - Invalid handle\n", parameters->strProfile, Error);
 				break;
 			case ERROR_ACCESS_DENIED:
-				WriteToLog("Wlan failed to connect on %ws with error %d - Accecss Denied\n", Connect.strProfile, Error);
+				WriteToLog("Wlan failed to connect on %ws with error %d - Accecss Denied\n", parameters->strProfile, Error);
 				break;
 			case ERROR_INVALID_PARAMETER:
-				WriteToLog("Wlan failed to connect on %ws with error %d - Invalid parameter\n", Connect.strProfile, Error);
+				WriteToLog("Wlan failed to connect on %ws with error %d - Invalid parameter\n", parameters->strProfile, Error);
 				break;
 			default:
-				WriteToLog("Wlan failed to connect on %ws with error %d\n", Connect.strProfile, Error);
+				WriteToLog("Wlan failed to connect on %ws with error %d\n", parameters->strProfile, Error);
 				break;
 			}
-		else {
-			WriteToLog("Successfully connected to network %ws with password %ws\n", Connect.strProfile, config.pwds[i]);
-			break;
+			/* in any case, delete the profile */
+			wifi_disconnect(config, *parameters);
 		}
-	}
+		else {
+			_sleep(9000);
+			/* WlanConnect returns success for networks with false password, so we need to check immediately for the internet connection */
+			if (InternetCheckConnectionA(GOOGLE_URL, FLAG_ICC_FORCE_CONNECTION, 0) == FALSE) {
+				WriteToLog("No access to the internet. Continuing with the rest networks\n");
+				/* in any case, delete the profile */
+				wifi_disconnect(config, *parameters);
+				Error = ERROR_NO_NETWORK;
+				continue;
+			}
+			WriteToLog("Successfully connected to network %ws with password %ws\n", parameters->strProfile, password);
+			break;
+		}		
+	} while (++i < siz);
+	
 	return Error;
 }
 
-DWORD wifi_disconnect(wifi_t config) {
+DWORD wifi_disconnect(wifi_t config, WLAN_CONNECTION_PARAMETERS parameters) {
 
+	WlanDeleteProfile(config.MyHandle, &config.MyGuid, parameters.strProfile, NULL);
+	if (parameters.strProfile) free(parameters.strProfile);
 	return WlanDisconnect(config.MyHandle, &config.MyGuid, 0);
 }
 
@@ -453,7 +476,6 @@ void toggle_wifi_windows10() {
 
 WHATISMYIP_DECLARE(void) wifi_try_connect(const WCHAR *wifiName, const WCHAR passwords[][128]) {
 
-#define GOOGLE_URL "https://www.google.com"
 	BOOL try_toggle = FALSE;
 	for (;;) {
 
@@ -518,22 +540,14 @@ WHATISMYIP_DECLARE(void) wifi_try_connect(const WCHAR *wifiName, const WCHAR pas
 
 		for (int i = 0; i < networks->dwNumberOfItems; ++i)
 		{
-			DWORD err = wifi_connect_to_network(wifi_config, networks->Network[i]);
+			WLAN_CONNECTION_PARAMETERS parameters = { 0, NULL };
+			DWORD err = wifi_connect_to_network(wifi_config, networks->Network[i], &parameters);
 			if (err == ERROR_SUCCESS) {
-#ifdef _DEBUG
-				_sleep(5000);
-#else
-				_sleep(30000);
-#endif
-				if (InternetCheckConnectionA(GOOGLE_URL, FLAG_ICC_FORCE_CONNECTION, 0)) {
-					should_break = TRUE;
-					WriteToLog("No access to the internet. REstarting workflow\n");
-					break;
-				}
-
+				should_break = TRUE;
+				break;
 			}
 			else
-				_sleep(1000);
+				_sleep(500);
 		}
 	end:
 		wifi_destroy_config(wifi_config);
