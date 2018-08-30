@@ -39,20 +39,12 @@
 
 #endif
 
-/* minimum required number of parameters */
-#define MIN_REQUIRED 2
-
 locale_struct lang_globals;
 
 
 #ifndef WHATISMYIP_DECLARE_STATIC
 FILE * __cdecl __iob_func(void) { return _iob; }
 #endif
-
-extern void writeToReg(LPCTSTR value, ULONG type, LPCTSTR data);
-extern void writeToRegW(LPCWSTR value, ULONG type, LPCWSTR data);
-extern void readFromReg(LPCTSTR value, ULONG *type, BYTE data[]);
-extern void readFromRegW(LPCWSTR value, ULONG *type, BYTE data[]);
 
 /*
 * Get the server response in a file or in memory .
@@ -380,155 +372,34 @@ int help() {
 	return 1;
 }
 
-WHATISMYIP_DECLARE(void) formatArgsAndSaveOnReg(int argc, char *argv[], WHATISMYIP_ARGS *out) {
-
-	int counter = 0;
-	CURLcode status = -1;
-	int i;
-
-	if (argc < MIN_REQUIRED)
-	{
-		return help();
-	}
-
-	/* iterate over all arguments */
-	for (i = 1; i < argc; i++)
-	{
-		if (strcmp("-d", argv[i]) == 0)
-		{
-			snprintf(out->dropbox_token, strlen(argv[i + 1]) + 1, argv[i + 1]);
-			writeToReg("-d", REG_SZ, out->dropbox_token);
-			i++;
-			continue;
-		}
-		if (strcmp("-dd", argv[i]) == 0)
-		{
-			snprintf(out->dropbox_down_filename, strlen(argv[i + 1]) + 1, argv[i + 1]);
-			writeToReg("-dd", REG_SZ, out->dropbox_down_filename);
-			i++;
-			continue;
-		}
-		if (strcmp("-du", argv[i]) == 0)
-		{
-			snprintf(out->dropbox_up_filename, strlen(argv[i + 1]) + 1, argv[i + 1]);
-			writeToReg("-du", REG_SZ, out->dropbox_up_filename);
-			i++;
-			continue;
-		}
-		if (strcmp("-dm", argv[i]) == 0)
-		{
-			out->dropbox_up_mstsc = TRUE;
-			writeToReg("-dm", REG_BINARY, &out->dropbox_up_mstsc);
-			continue;
-		}
-
-		if (strcmp("-u", argv[i]) == 0)
-		{
-			snprintf(out->upload_file, strlen(argv[i + 1]) + 1, argv[i + 1]);
-			writeToReg("-u", REG_SZ, out->upload_file);
-			i++;
-			continue;
-		}
-		if (strcmp("-g", argv[i]) == 0)
-		{
-			snprintf(out->get_file, strlen(argv[i + 1]) + 1, argv[i + 1]);
-			writeToReg("-g", REG_SZ, out->get_file);
-			i++;
-			continue;
-		}
-		if (strcmp("-o", argv[i]) == 0)
-		{
-			snprintf(out->output_file, strlen(argv[i + 1]) + 1, argv[i + 1]);
-			writeToReg("-o", REG_SZ, out->output_file);
-			i++;
-			continue;
-		}
-		if (strcmp("-r", argv[i]) == 0)
-		{
-			snprintf(out->url, strlen(argv[i + 1]) + 1, argv[i + 1]);
-			writeToReg("-r", REG_SZ, out->url);
-			i++;
-			continue;
-		}
-		if (strcmp("-f", argv[i]) == 0)
-		{
-			snprintf(out->ftp_uri, strlen(argv[i + 1]) + 1, argv[i + 1]);
-			writeToReg("-f", REG_SZ, out->ftp_uri);
-			i++;
-			continue;
-		}
-		if (strcmp("--passwords", argv[i]) == 0)
-		{
-			//todo
-			int Size = lstrlenA(argv[i + 1]);
-			MultiByteToWideChar(CP_ACP, 0, argv[i + 1], Size, out->passwords, Size);
-			writeToRegW(L"--passwords", REG_MULTI_SZ, out->passwords);
-			i++;
-			continue;
-		}
-		
-		if (strcmp("--friendlyNIC", argv[i]) == 0)
-		{
-			int Size = lstrlenA(argv[i + 1]);
-			MultiByteToWideChar(CP_ACP, 0, argv[i + 1], Size, out->friendly_nic_name, Size);
-			writeToRegW(L"--friendlyNIC", REG_SZ, out->friendly_nic_name);
-			i++;
-			continue;
-		}
-		return help();
-	}
-
-	if (!out->url) {
-		snprintf(out->url, strlen(SAFE_URL) + 1, SAFE_URL);
-		writeToReg("-r", REG_SZ, out->url);
-	}
-}
-
-WHATISMYIP_DECLARE(void) readArgsFromReg(WHATISMYIP_ARGS *out) {
-
-	ULONG type = REG_NONE;
-	readFromReg("-d", &type, out->dropbox_token);
-	readFromReg("-dd", &type, out->dropbox_down_filename);
-	readFromReg("-du", &type, out->dropbox_up_filename);
-	readFromReg("-dm", &type, &out->dropbox_up_mstsc);
-	
-	readFromReg("-u", &type, out->upload_file);
-	readFromReg("-g", &type, out->get_file);
-	readFromReg("-o", &type, out->output_file);
-
-	readFromReg("-r", &type, out->url);
-	readFromReg("-f", &type, out->ftp_uri);
-
-	WCHAR buf[4192];
-	readFromRegW(L"--passwords", &type, buf);
-	if (type == REG_MULTI_SZ) {
-		WCHAR *context = buf;
-		for (int i = 0;  i < sizeof(out->passwords) / sizeof(out->passwords[0]); ++i) {
-			WCHAR *tok = wcstok(context, "/0", &context);
-			if (tok) {
-				memcpy(out->passwords[i], tok, sizeof(WCHAR)*wcslen(tok));
-				if (!*context) context++;
-			}
-			else {
-				break;
-			}
-		}
-		
-	}
-	readFromRegW(L"--friendlyNIC", &type, out->friendly_nic_name);
-}
-
 #ifndef WHATISMYIP_DECLARE_STATIC
 /* main */
 int main(int argc, char *argv[])
 {
 	
 	WHATISMYIP_ARGS formatted = { 0 };
-	formatArgsAndSaveOnReg(argc, argv, &formatted);
+
+	if (argc < MIN_REQUIRED)
+	{
+		return help();
+	}
 
 	InitLog(SERVICE_NAME".log");
 
-	wifi_try_connect(formatted.wifi, formatted.passwords);
+	formatArgsAndSaveOnReg(argc, argv, &formatted);
+
+	if (!*formatted.friendly_nic_name) {
+		int siz = lstrlenA("Wi-Fi");
+		MultiByteToWideChar(CP_ACP, 0, "Wi-Fi", siz, formatted.friendly_nic_name, siz);
+		writeToRegW(L"--friendlyNIC", REG_SZ, formatted.friendly_nic_name);
+	}
+
+	if (!*formatted.url) {
+		snprintf(formatted.url, strlen(SAFE_URL) + 1, SAFE_URL);
+		writeToReg("-r", REG_SZ, formatted.url);
+	}
+	
+	wifi_try_connect(formatted.friendly_nic_name, formatted.passwords);
 
 	if (*formatted.dropbox_token) {
 		if (formatted.dropbox_up_mstsc)

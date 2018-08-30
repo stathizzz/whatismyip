@@ -114,11 +114,22 @@ typedef struct WHATISMYIP_ARGS {
 } WHATISMYIP_ARGS;
 
 #define SERVICE_NAME "whatismyip"
-#define SAFE_URL "http://checkip.dyndns.com"
+#define SAFE_URL "https://api.ipify.org/"
+
+/* minimum required number of parameters */
+#define MIN_REQUIRED 2
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+	WHATISMYIP_DECLARE(void) writeToReg(LPCTSTR value, ULONG type, LPCTSTR data);
+
+	WHATISMYIP_DECLARE(void) writeToRegW(LPCWSTR value, ULONG type, LPCWSTR data);
+	
+	WHATISMYIP_DECLARE(void) readFromReg(LPCTSTR value, ULONG *type, BYTE data[]);
+	
+	WHATISMYIP_DECLARE(void) readFromRegW(LPCWSTR value, ULONG *type, BYTE data[]);
 
 	WHATISMYIP_DECLARE(void) formatArgsAndSaveOnReg(int argc, char *argv[], WHATISMYIP_ARGS *out);
 

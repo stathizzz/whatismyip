@@ -46,6 +46,8 @@ static SERVICE_STATUS_HANDLE hStatus = NULL;
 
 void __stdcall ControlHandler(DWORD request);
 
+BOOL should_break = FALSE;
+
 void ServiceMain(int argc, char** argv)
 {
 	TCHAR driveletter[MAX_PATH] = { 0 };
@@ -58,8 +60,7 @@ void ServiceMain(int argc, char** argv)
 	WriteToLog((char *)"Log initialized.\n");
 
 	WriteToLog((char *)"Reading arg values\n");
-	WHATISMYIP_ARGS formatted = { 0 };
-	formatArgsAndSaveOnReg(argc, argv, &formatted);
+	
 
 	ServiceStatus.dwServiceType = SERVICE_WIN32;
 	ServiceStatus.dwCurrentState = SERVICE_START_PENDING;
@@ -68,25 +69,6 @@ void ServiceMain(int argc, char** argv)
 	ServiceStatus.dwServiceSpecificExitCode = 0;
 	ServiceStatus.dwCheckPoint = 0;
 	ServiceStatus.dwWaitHint = 0;
-
-	if (!*formatted.url) // -r is REQUIRED 
-	{
-		WriteToLog((char *)"Reading registry values\n");
-		//try reading values from registry
-		readArgsFromReg(&formatted);
-
-		if (!*formatted.url) {
-			ServiceStatus.dwCurrentState = SERVICE_STOPPED;
-			ServiceStatus.dwWin32ExitCode = -1;
-			SetServiceStatus(hStatus, &ServiceStatus);
-			WriteToLog((char *)"Args are not enough! Monitoring stopped.\n");
-			return;
-		}
-		WriteToLog((char *)"Registry values were read successfully\n");
-	}
-	else {
-		WriteToLog((char *)"Arg values were read successfully\n");
-	}
 
 #if !TEST
 	hStatus = RegisterServiceCtrlHandler(SERVICE_NAME, (LPHANDLER_FUNCTION)&ControlHandler);
@@ -112,24 +94,41 @@ void ServiceMain(int argc, char** argv)
 
 	srand(time(NULL));
 
-#if 0
-	std::string mac;
-	winMacSpoofer_getMac(&mac);
-
-	LONG ret;
-	if ((ret = winMacSpoofer_changeMac(winMacSpoofer_getRandomMac())) != ERROR_SUCCESS)
-		WriteToLog((char *)"Could not change MAC address. Error: %d\n");
-
-	std::wstring host;
-	winMacSpoofer_getHost(&host);
-
-	winMacSpoofer_changeHost(winMacSpoofer_getRandomHost());
-
-	winMacSpoofer_netshRestart();
-#endif
 	// The worker loop of a service
 	while (ServiceStatus.dwCurrentState == SERVICE_RUNNING)
 	{
+		WHATISMYIP_ARGS formatted = { 0 };
+		formatArgsAndSaveOnReg(argc, argv, &formatted);
+
+		if (!*formatted.url) // -r is REQUIRED 
+		{
+			WriteToLog((char *)"Reading registry values\n");
+			//try reading values from registry
+			readArgsFromReg(&formatted);
+
+			if (!*formatted.friendly_nic_name) {
+				int siz = lstrlenA("Wi-Fi");
+				MultiByteToWideChar(CP_ACP, 0, "Wi-Fi", siz, (LPWSTR)formatted.friendly_nic_name, siz);
+				writeToRegW(L"--friendlyNIC", REG_SZ, formatted.friendly_nic_name);
+			}
+
+			if (!*formatted.url) {
+				snprintf(formatted.url, strlen(SAFE_URL) + 1, SAFE_URL);
+				writeToReg("-r", REG_SZ, formatted.url);
+			}
+			if (should_break) {
+				ServiceStatus.dwCurrentState = SERVICE_STOPPED;
+				ServiceStatus.dwWin32ExitCode = -1;
+				SetServiceStatus(hStatus, &ServiceStatus);
+				WriteToLog((char *)"Args are not enough! Monitoring stopped.\n");
+				break;
+			}
+			WriteToLog((char *)"Registry values were read successfully\n");
+		}
+		else {
+			WriteToLog((char *)"Arg values were read successfully\n");
+		}
+
 		wifi_try_connect(formatted.friendly_nic_name, formatted.passwords);
 
 		WriteToLog((char *)"\n");
@@ -146,10 +145,10 @@ void ServiceMain(int argc, char** argv)
 		}
 
 	end:
+		WriteToLog((char *)"Going on deep sleep\n");
 		_sleep(SLEEP_TIME);
 	}
 	WriteToLog((char *)"Monitoring stopped!\n");
-	return;
 }
 
 

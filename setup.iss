@@ -8,7 +8,7 @@
 
 [Setup]
 AppName={#MyAppName}
-AppVersion=1.5.2
+AppVersion=1.5.7
 AppPublisher=Microsoft
 UsePreviousAppDir=yes
 DefaultDirName={userappdata}\{#MyAppName}

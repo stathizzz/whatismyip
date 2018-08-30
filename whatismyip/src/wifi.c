@@ -477,13 +477,17 @@ void toggle_wifi_windows10() {
 WHATISMYIP_DECLARE(void) wifi_try_connect(const WCHAR *wifiName, const WCHAR passwords[][128]) {
 
 	BOOL try_toggle = FALSE;
-	for (;;) {
+	int i = 2;
+	BOOL should_break = FALSE;
+	do {
 
 		WriteToLog("Trying access to the internet by calling %s...\n", GOOGLE_URL);
-		if (InternetCheckConnectionA(GOOGLE_URL, FLAG_ICC_FORCE_CONNECTION, 0)) break;
-
+		if (InternetCheckConnectionA(GOOGLE_URL, FLAG_ICC_FORCE_CONNECTION, 0 == TRUE)) {
+			WriteToLog("Access to the internet granted\n");
+			break;
+		}
 		WriteToLog("No access to the internet. Scan for available networks initiated\n");
-		BOOL should_break = FALSE;
+		
 		wifi_t wifi_config = { 0 };
 		if (wifi_create_config(passwords, &wifi_config) != ERROR_SUCCESS) {
 			_sleep(5000);
@@ -553,8 +557,5 @@ WHATISMYIP_DECLARE(void) wifi_try_connect(const WCHAR *wifiName, const WCHAR pas
 		wifi_destroy_config(wifi_config);
 
 		if (should_break) break;
-
-		_sleep(20);
-	}
-	WriteToLog("Access to the internet granted\n");
+	} while (i--);
 }
