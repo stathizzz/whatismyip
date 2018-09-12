@@ -40,8 +40,6 @@ typedef struct wifi_s
 	WCHAR InterfaceDescription[BUFSIZ];
 	WLAN_INTERFACE_STATE CurrentState;
 	GUID MyGuid;
-	//PWSTR Profil;
-	//LPCWSTR	Network;
 	WCHAR pwds[16][128];
 } wifi_t;
 

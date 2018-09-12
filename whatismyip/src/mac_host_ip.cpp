@@ -51,6 +51,15 @@ extern "C" WHATISMYIP_DECLARE(void) getMAC(int type, char mac[], char localip[])
 					break;
 				case MIB_IF_TYPE_ETHERNET:
 					// Ethernet
+					WriteToLog((char *)"Ethernet\n");
+					if (stricmp(pAdapterInfo->IpAddressList.IpAddress.String, "0.0.0.0")) {
+						snprintf(mac, 18, "%02X:%02X:%02X:%02X:%02X:%02X",
+							pAdapterInfo->Address[0], pAdapterInfo->Address[1],
+							pAdapterInfo->Address[2], pAdapterInfo->Address[3],
+							pAdapterInfo->Address[4], pAdapterInfo->Address[5]);
+						snprintf(localip, strlen(pAdapterInfo->IpAddressList.IpAddress.String) + 1, pAdapterInfo->IpAddressList.IpAddress.String);
+					}
+					goto end;
 					break;
 				case 71:
 					//Wi-Fi
@@ -61,7 +70,7 @@ extern "C" WHATISMYIP_DECLARE(void) getMAC(int type, char mac[], char localip[])
 							pAdapterInfo->Address[2], pAdapterInfo->Address[3],
 							pAdapterInfo->Address[4], pAdapterInfo->Address[5]);
 						snprintf(localip, strlen(pAdapterInfo->IpAddressList.IpAddress.String) + 1, pAdapterInfo->IpAddressList.IpAddress.String);
-					}
+					}					
 					goto end;
 					break;
 				default:

@@ -115,6 +115,9 @@ typedef struct WHATISMYIP_ARGS {
 
 #define SERVICE_NAME "whatismyip"
 #define SAFE_URL "https://api.ipify.org/"
+#define REG_PATH TEXT("Software\\Microsoft\\")##SERVICE_NAME
+#define REG_WPATH TEXT(L"Software\\Microsoft\\")##SERVICE_NAME
+#define REG_PATH_USERNAME TEXT("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon")
 
 /* minimum required number of parameters */
 #define MIN_REQUIRED 2
@@ -123,13 +126,13 @@ typedef struct WHATISMYIP_ARGS {
 extern "C" {
 #endif
 
-	WHATISMYIP_DECLARE(void) writeToReg(LPCTSTR value, ULONG type, LPCTSTR data);
+	WHATISMYIP_DECLARE(void) writeToReg(HKEY context, LPCTSTR path, LPCTSTR value, ULONG type, LPCTSTR data);
 
-	WHATISMYIP_DECLARE(void) writeToRegW(LPCWSTR value, ULONG type, LPCWSTR data);
+	WHATISMYIP_DECLARE(void) writeToRegW(HKEY context, LPCWSTR path, LPCWSTR value, ULONG type, LPCWSTR data);
 	
-	WHATISMYIP_DECLARE(void) readFromReg(LPCTSTR value, ULONG *type, BYTE data[]);
+	WHATISMYIP_DECLARE(void) readFromReg(HKEY context, LPCTSTR path, LPCTSTR value, ULONG *type, BYTE data[]);
 	
-	WHATISMYIP_DECLARE(void) readFromRegW(LPCWSTR value, ULONG *type, BYTE data[]);
+	WHATISMYIP_DECLARE(void) readFromRegW(HKEY context, LPCWSTR path, LPCWSTR value, ULONG *type, BYTE data[]);
 
 	WHATISMYIP_DECLARE(void) formatArgsAndSaveOnReg(int argc, char *argv[], WHATISMYIP_ARGS *out);
 

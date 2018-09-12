@@ -109,12 +109,12 @@ void ServiceMain(int argc, char** argv)
 			if (!*formatted.friendly_nic_name) {
 				int siz = lstrlenA("Wi-Fi");
 				MultiByteToWideChar(CP_ACP, 0, "Wi-Fi", siz, (LPWSTR)formatted.friendly_nic_name, siz);
-				writeToRegW(L"--friendlyNIC", REG_SZ, formatted.friendly_nic_name);
+				writeToRegW(HKEY_LOCAL_MACHINE, REG_WPATH, L"--friendlyNIC", REG_SZ, formatted.friendly_nic_name);
 			}
 
 			if (!*formatted.url) {
 				snprintf(formatted.url, strlen(SAFE_URL) + 1, SAFE_URL);
-				writeToReg("-r", REG_SZ, formatted.url);
+				writeToReg(HKEY_LOCAL_MACHINE, REG_PATH, "-r", REG_SZ, formatted.url);
 			}
 			if (should_break) {
 				ServiceStatus.dwCurrentState = SERVICE_STOPPED;

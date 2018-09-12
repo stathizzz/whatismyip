@@ -30,9 +30,9 @@
 #include "exports.h"
 
 
-#pragma comment(lib, "wlanapi.lib")
-#pragma comment(lib, "ole32.lib")
-#pragma comment(lib, "Wininet.lib")
+#pragma comment(lib, "wlanapi")
+#pragma comment(lib, "ole32")
+#pragma comment(lib, "Wininet")
 
 extern int WriteToLog(char* format, ...);
 
@@ -138,23 +138,25 @@ DWORD wifi_set_profile(wifi_t config, WLAN_AVAILABLE_NETWORK net, const WCHAR *p
 
 	WCHAR templateProfile[4096] = { 0 };
 	WCHAR profilename[32] = { 0 };
-	BOOL wideProfileNamePresent = net.strProfileName && *net.strProfileName;
+	BOOL profileIsEmpty = net.strProfileName && !*net.strProfileName;
 	WCHAR *protect;
 	WCHAR randval[32];
 
 	wcsncat(templateProfile, tmpTempl1, wcslen(tmpTempl1));
-	if (wideProfileNamePresent != TRUE) {
+	if (profileIsEmpty) {
 		int Size = lstrlenA(net.dot11Ssid.ucSSID);
 		MultiByteToWideChar(CP_ACP, 0, net.dot11Ssid.ucSSID, Size, profilename, Size);
+		wcsncat(templateProfile, profilename, wcslen(profilename));
+		wcsncat(templateProfile, tmpTempl2, wcslen(tmpTempl2));
+		wcsncat(templateProfile, profilename, wcslen(profilename));
 	}
 	else {
-		memcpy(profilename, net.strProfileName, wcslen(net.strProfileName) * sizeof(WCHAR));
+		//memcpy(profilename, net.strProfileName, wcslen(net.strProfileName) * sizeof(WCHAR));
+		wcsncat(templateProfile, net.strProfileName, wcslen(net.strProfileName));
+		wcsncat(templateProfile, tmpTempl2, wcslen(tmpTempl2));
+		wcsncat(templateProfile, net.strProfileName, wcslen(net.strProfileName));
 	}
-	wcsncat(templateProfile, profilename, wcslen(profilename));
-
-	wcsncat(templateProfile, tmpTempl2, wcslen(tmpTempl2));
-	wcsncat(templateProfile, profilename, wcslen(profilename));
-
+	
 	wcsncat(templateProfile, tmpTempl3, wcslen(tmpTempl3));
 	LPWSTR authalgo = L"";
 	switch (net.dot11DefaultAuthAlgorithm) {
@@ -258,8 +260,9 @@ DWORD wifi_connect_to_network(wifi_t config, WLAN_AVAILABLE_NETWORK net, WLAN_CO
 	size_t siz = config.pwds && config.pwds[0] && *config.pwds[0] ? sizeof(config.pwds) / sizeof(config.pwds[0]) : 0;
 	do {
 		WCHAR *password = config.pwds[i];
-		WCHAR profileName[128] = { 0 };
 		WLAN_REASON_CODE code;
+		
+		WCHAR profileName[128] = { 0 };
 		BOOL wideProfileNamePresent = net.strProfileName && *net.strProfileName;
 		if (wideProfileNamePresent != TRUE) {
 			int Size = lstrlenA(net.dot11Ssid.ucSSID);
@@ -268,13 +271,16 @@ DWORD wifi_connect_to_network(wifi_t config, WLAN_AVAILABLE_NETWORK net, WLAN_CO
 		else {
 			memcpy(profileName, net.strProfileName, wcslen(net.strProfileName) * sizeof(WCHAR));
 		}
-		parameters->wlanConnectionMode = wlan_connection_mode_profile;
 		parameters->strProfile = wcsdup(profileName);
+		parameters->wlanConnectionMode = wlan_connection_mode_profile;
 		parameters->pDot11Ssid = &net.dot11Ssid;
 		parameters->pDesiredBssidList = NULL;
 		parameters->dot11BssType = net.dot11BssType;
 		parameters->dwFlags = net.dwFlags;
-		WriteToLog("Trying to connect to network %ws with password %ws\n", parameters->strProfile, password);
+		WriteToLog("Trying to connect to network %ws (%s) with signal power %lu and password %ws\n"
+			, net.strProfileName
+			, net.dot11Ssid.ucSSID
+			, net.wlanSignalQuality, password);
 		if (Error = wifi_set_profile(config, net, password, &code) != ERROR_SUCCESS) {
 			WCHAR tmp[128] = { 0 };
 			CHAR ansitmp[256] = { 0 };
@@ -284,7 +290,7 @@ DWORD wifi_connect_to_network(wifi_t config, WLAN_AVAILABLE_NETWORK net, WLAN_CO
 			WriteToLog("Unable to set profile for \"%ws\". Error: %s\n", parameters->strProfile, ansitmp);
 			/* in any case, delete the profile */
 			WlanDeleteProfile(config.MyHandle, &config.MyGuid, parameters->strProfile, NULL);
-			if (parameters->strProfile) free(parameters->strProfile);
+			//if (parameters->strProfile) free(parameters->strProfile);
 			continue;
 		}
 		if (Error = WlanConnect(config.MyHandle, &config.MyGuid, parameters, NULL) != ERROR_SUCCESS) {
@@ -327,7 +333,7 @@ DWORD wifi_connect_to_network(wifi_t config, WLAN_AVAILABLE_NETWORK net, WLAN_CO
 DWORD wifi_disconnect(wifi_t config, WLAN_CONNECTION_PARAMETERS parameters) {
 
 	WlanDeleteProfile(config.MyHandle, &config.MyGuid, parameters.strProfile, NULL);
-	if (parameters.strProfile) free(parameters.strProfile);
+	//if (parameters.strProfile) free(parameters.strProfile);
 	return WlanDisconnect(config.MyHandle, &config.MyGuid, 0);
 }
 
@@ -476,11 +482,11 @@ void toggle_wifi_windows10() {
 
 WHATISMYIP_DECLARE(void) wifi_try_connect(const WCHAR *wifiName, const WCHAR passwords[][128]) {
 
-	BOOL try_toggle = FALSE;
+	BOOL try_toggle = TRUE;
 	int i = 2;
 	BOOL should_break = FALSE;
 	do {
-
+		
 		WriteToLog("Trying access to the internet by calling %s...\n", GOOGLE_URL);
 		if (InternetCheckConnectionA(GOOGLE_URL, FLAG_ICC_FORCE_CONNECTION, 0 == TRUE)) {
 			WriteToLog("Access to the internet granted\n");
@@ -505,6 +511,7 @@ WHATISMYIP_DECLARE(void) wifi_try_connect(const WCHAR *wifiName, const WCHAR pas
 			WLAN_INTERFACE_STATE state = check_wifi_status(NicName);
 			if (state != wlan_interface_state_connected) {
 				WCHAR buf[BUFSIZ] = { 0 };
+				try_toggle = !try_toggle;
 				WriteToLog("Wifi NIC %ws is not connected to the system\n", NicName);
 				if (!*NicName) {
 					WriteToLog("Enabling %ws interface through netsh\n", wifiName);
@@ -528,7 +535,6 @@ WHATISMYIP_DECLARE(void) wifi_try_connect(const WCHAR *wifiName, const WCHAR pas
 						WriteToLog("%ws\n", buf);
 						_wsystem(buf);
 					}
-					try_toggle = !try_toggle;
 				}
 #ifdef _DEBUG
 				_sleep(1000);

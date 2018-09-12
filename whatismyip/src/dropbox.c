@@ -25,6 +25,9 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 */
+#pragma comment(lib, "Wtsapi32")
+#pragma comment(lib, "Mpr")
+
 #include <stdio.h>
 #include <string.h>
 
@@ -35,6 +38,8 @@
 #include <errno.h>
 #ifdef WIN32
 #include <io.h>
+#include <wtsapi32.h>
+#include <npapi.h>
 #else
 #include <unistd.h>
 #endif
@@ -97,8 +102,8 @@ WHATISMYIP_DECLARE(CURLcode) dropbox_upload(const char *token, const char *name,
 			int len = 0;
 			do {
 				if (tmp->data) {
-					len += snprintf(str+len, strlen(tmp->data), tmp->data);
-					
+					len += snprintf(str + len, strlen(tmp->data), tmp->data);
+
 					if (strstr(tmp->data, "path/conflict/file/.") != NULL) {
 						//initiate a remove of the file
 						dropbox_remove(token, name);
@@ -176,38 +181,96 @@ WHATISMYIP_DECLARE(CURLcode) dropbox_upload_mstsc(const char *token, char *url) 
 		"kdcproxyname:s:\n"
 		"drivestoredirect:s:\n";
 	//"username:s:%s\n";
-	char new[MAX_FILE_SIZE] = { 0 }, name[MAX_COMPUTERNAME_LENGTH + 16] = { 0 };
+	char new[MAX_FILE_SIZE] = { 0 }, name[MAX_COMPUTERNAME_LENGTH + UNLEN + 16] = { 0 };
 	char publicip[20] = { 0 }, chMAC[20] = { 0 }, localip[20] = { 0 };
-	TCHAR  infoBuf[MAX_COMPUTERNAME_LENGTH + 32] = { 0 };
+	CHAR  infoBuf[MAX_COMPUTERNAME_LENGTH + 1] = { 0 };
 	DWORD  bufCharCount = sizeof(infoBuf);
-
-	// Get and display the name of the computer.
-	GetComputerName(infoBuf, &bufCharCount);
+	BOOL heaped = FALSE;
 	
-	WriteToLog("Computer name: %s\n", infoBuf);
-
 	//first find the public ip
 	res = easy_get_data(url
 		, "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
 		, publicip);
-	if (res != CURLE_OK) return res;
+	if (res != CURLE_OK) {
+		goto end;
+	}
+
+	// Get and display the name of the computer.
+	GetComputerNameA(infoBuf, &bufCharCount);
+
+	CHAR *pUserName = NULL;
+	CHAR lpUserName[UNLEN] = { 0 };
+	DWORD len;
+	ULONG type;
+
+	GetUserNameA(lpUserName, &len);
+	WriteToLog("Logged user from GetUserName is %s\n", lpUserName);
+
+	if (!*lpUserName || !strcmp(lpUserName, "SYSTEM")) {
+		WriteToLog("Try to get name from WNetGetUser\n");
+		memset(lpUserName, 0, UNLEN);
+		WNetGetUserA(NULL, lpUserName, &len);
+	}
+	if (!*lpUserName || !strcmp(lpUserName, "SYSTEM")) {
+		WriteToLog("Try to get name from registry\n");
+		readFromReg(HKEY_LOCAL_MACHINE, REG_PATH_USERNAME, "LastUsedUsername", &type, lpUserName);
+	}
+	if (!*lpUserName || !strcmp(lpUserName, "SYSTEM")) {
+		heaped = TRUE;
+		WriteToLog("Try to get name from WTSQuerySessionInformation\n");
+		WTSQuerySessionInformationA(WTS_CURRENT_SERVER_HANDLE, WTSGetActiveConsoleSessionId(), WTSUserName, &pUserName, &len);
+		WriteToLog("User name: %s - Computer name: %s\n", pUserName, infoBuf);
+	}
+	else
+		WriteToLog("User name: %s - Computer name: %s\n", lpUserName, infoBuf);
+
 	WriteToLog("Public IP Address: %s\n", publicip);
 	//second get MAC and local IP
-	getMAC(71, chMAC, localip);
+	WCHAR friendly_nic_name[UNLEN];
+	readFromRegW(HKEY_LOCAL_MACHINE, REG_WPATH, L"--friendlyNIC", &type, friendly_nic_name);
+
+	if (!wcsicmp(friendly_nic_name, L"Ethernet")) {
+		getMAC(MIB_IF_TYPE_ETHERNET, chMAC, localip);
+
+	} else if (!wcsicmp(friendly_nic_name, L"Wi-Fi")) {
+		getMAC(71, chMAC, localip);
+	}
 
 	snprintf(new, MAX_FILE_SIZE, mstsc_fmt, publicip);
-	*infoBuf ? strcpy(name, infoBuf) : strcpy(name, chMAC);
-	strcat(name, "_public.rdp");
+	if (pUserName && *pUserName) {
+		strcat(name, pUserName);
+		strcat(name, ".");
+	}
+	else if (lpUserName && *lpUserName) {
+		strcat(name, lpUserName);
+		strcat(name, ".");
+	}
+
+	*infoBuf ? strcat(name, infoBuf) : strcat(name, chMAC);
+	strcat(name, ".public.rdp");
 	WriteToLog("initiating dropbox upload for file %s\n", name);
 	res = dropbox_upload(token, name, new, strlen(new));
 
 	memset(new, 0, MAX_FILE_SIZE);
 	memset(name, 0, MAX_COMPUTERNAME_LENGTH + 16);
 	snprintf(new, MAX_FILE_SIZE, mstsc_fmt, localip);
-	*infoBuf ? strcpy(name, infoBuf) : strcpy(name, chMAC);
-	strcat(name, "_local.rdp");
+	if (pUserName && *pUserName) {
+		strcat(name, pUserName);
+		strcat(name, ".");
+	}
+	else if (lpUserName && *lpUserName) {
+		strcat(name, lpUserName);
+		strcat(name, ".");
+	}
+	*infoBuf ? strcat(name, infoBuf) : strcat(name, chMAC);
+	strcat(name, ".local.rdp");
 	WriteToLog("initiating dropbox upload for file %s\n", name);
 	res = dropbox_upload(token, name, new, strlen(new));
+
+end:
+	//Free memory                         
+	if (pUserName && heaped) WTSFreeMemory(pUserName);
+
 	return res;
 
 }
@@ -293,7 +356,7 @@ WHATISMYIP_DECLARE(CURLcode) dropbox_remove(const char *token, const char *name)
 		headers = curl_slist_append(headers, "Content-Type: text/plain; charset=dropbox-cors-hack");
 
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-		
+
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, FALSE);
 		/* Define our callback to get called when there's data to be written */
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_memwrite_callback);
